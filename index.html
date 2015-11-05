@@ -114,7 +114,7 @@
       var enteredUsername = "'"+username.value+"'";
       var enteredDescription = "'"+description.value+"'";
       drawnItems.eachLayer(function (layer) {
-        var drawing = JSON.stringify(layer.toGeoJSON());
+        var drawing = "'"+JSON.stringify(layer.toGeoJSON())+"'";
           
         //Creates the SQL query to insert 
           var sql = "SELECT insert_crowd_mapping_data(";
