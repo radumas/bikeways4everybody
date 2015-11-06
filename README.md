@@ -1,20 +1,18 @@
 # Crowdmap: Basic
-Basic example of using Leaflet.draw to crowdsource geographies to a CartoDB database.
+This is an attempt to create the most basic example of a web map for crowdsourcing... anything that users can draw on a map (points, squares, circles, lines, polygons...).
+It uses [Leaflet.draw](https://github.com/Leaflet/Leaflet.draw) ([demo](https://leaflet.github.io/Leaflet.draw/)) to crowdsource user-generated shapes on a map and then inserts them in a [CartoDB table](https://cartodb.com/data/).
 
 ## CartoDB
 
-
 1. Get a free [CartoDB account](https://cartodb.com/signup)
 2. Create a new CartoDB dataset. The default dataset comes with the following fields: `{cartodb_id, the_geom, description, name}`
+   Each row represents one submission from the map with the first field a unique id assigned by CartoDB to each geometry. `the_geom` is the geographic object. `description` is the user input description of the shape, and `name` is the user's name.
 3. In the view for the table, click on the "SQL" tab on the write to execute arbitrary SQL.  
 ![Custom SQL tab](https://i.stack.imgur.com/HPEHG.png)
-4. Copy and paste the contents of `insert_function.sql` ([here](https://github.com/radumas/crowdmap-basic/blob/master/insert_function.sql))
-This allows you to send data from the map to the CartoDB using a publicly accessible URL while limiting what functions the public can perform on the data (for example, modifying or deleting existing data).
-5. Your API endpoint is now 
-
-
-http://docs.cartodb.com/cartodb-platform/sql-api.html#what-levels-of-database-access-can-rolesusers-have
-
+4. Copy and paste the contents of `insert_function.sql` ([here](https://github.com/radumas/crowdmap-basic/blob/gh-pages/insert_function.sql))
+This allows you to send data from the map to the CartoDB using a publicly accessible URL while limiting what functions the public can perform on the data (for example, modifying or deleting existing data). This function takes the drawn shape as a GeoJSON, the description, and the username. It converts the GeoJSON to a PostGIS geometry object and then inserts a new row in the table with the geometry, and the other two user-input values.
+**If you have different tables** you need to create a unique function for each, it's probably a good idea to save each function as a separate file so you can recall what is on your CartoDB account.
+5. Your CartoDB API endpoint is http://YOURUSERNAME.cartodb.com/api/v2/sql
 
 ## Leaflet 
 
@@ -52,4 +50,9 @@ http://docs.cartodb.com/cartodb-platform/sql-api.html#what-levels-of-database-ac
         }
       });
 ```
-      
+
+## All You Need to Do After Forking
+1. Perform all the steps under the [CartoDB](#CartoDB) heading
+2. Modify the username in `index.html` (search for "TODO") to your cartodb username
+3. Go to http://YOURGITHUBUSERNAME.github.io/crowdmap-basic to play.
+4. Modify the code to your whims. 
