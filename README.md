@@ -2,6 +2,9 @@
 This is an attempt to create the most basic example of a web map for crowdsourcing... anything that users can draw on a map (points, squares, circles, lines, polygons...).
 It uses [Leaflet.draw](https://github.com/Leaflet/Leaflet.draw) ([demo](https://leaflet.github.io/Leaflet.draw/)) to crowdsource user-generated shapes on a map and then inserts them in a [CartoDB table](https://cartodb.com/data/).
 
+[![Example Screenshot](/screenshot.png)](http://radumas.github.io/crowdmap-basic)
+[Try it here](http://radumas.github.io/crowdmap-basic)
+
 ## All You Need to Do After Forking this Repository
 1. Perform all the steps under the [CartoDB](#cartodb) heading
 2. Modify the username in `index.html` (search for "TODO") to your cartodb username
