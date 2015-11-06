@@ -12,11 +12,11 @@ DECLARE
     _the_geom GEOMETRY;
 BEGIN
     --Convert the GeoJSON to a geometry type for insertion. 
-    _the_geom := ST_SetSRID(ST_GeomFromGeoJSON(_geojson),4326);
+    _the_geom := ST_SetSRID(ST_GeomFromGeoJSON(_geojson),4326); 
 
     EXECUTE ' INSERT INTO crowdmap_basic (the_geom, description, name)
             VALUES ($1, $2, $3)
-            ' USING (_the_geom, _description, _name);
+            ' USING _the_geom, _description, _name;
             
     RETURN 1;
 END;

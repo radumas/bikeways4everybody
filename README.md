@@ -19,4 +19,37 @@ http://docs.cartodb.com/cartodb-platform/sql-api.html#what-levels-of-database-ac
 ## Leaflet 
 
 1. Inspiring myself from the [excellent tutorial](http://duspviz.mit.edu/web-map-workshop/cartodb-data-collection/#) by Mike Foster ([@mjfoster83](https://github.com/mjfoster83/web-map-workshop) )
-2. 
+2. Modify the `setData()` function to construct the SQL query which calls the function to insert the data to CartoDB.
+```javascript
+    //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
+    var drawing = "'"+JSON.stringify(layer.toGeoJSON().geometry)+"'";
+
+    //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
+      var sql = "SELECT insert_crowd_mapping_data(";
+    sql += drawing;
+      sql += ","+enteredDescription;
+      sql += ","+enteredUsername;
+      sql += ");";
+```
+3. And then add the sql query to an AJAX call in order to pass the data to your CartoDB table
+```javascript
+    //TODO: Change to your username
+    var cartoDBusername = "raphaeld"  
+    //Sending the data
+      $.ajax({
+        type: 'POST',
+        url: 'https://'+cartoDBusername+'.cartodb.com/api/v2/sql',
+        crossDomain: true,
+        data: {"q":sql},
+        dataType: 'json',
+        success: function(responseData, textStatus, jqXHR) {
+          console.log("Data saved");
+
+        },
+        error: function (responseData, textStatus, errorThrown) {
+
+            console.log("Problem saving the data");
+        }
+      });
+```
+      

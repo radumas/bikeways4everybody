@@ -114,18 +114,19 @@
       var enteredUsername = "'"+username.value+"'";
       var enteredDescription = "'"+description.value+"'";
       drawnItems.eachLayer(function (layer) {
-        var drawing = "'"+JSON.stringify(layer.toGeoJSON())+"'";
+        //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
+          var drawing = "'"+JSON.stringify(layer.toGeoJSON().geometry)+"'";
           
-        //Creates the SQL query to insert 
+          //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
           var sql = "SELECT insert_crowd_mapping_data(";
         sql += drawing;
           sql += ","+enteredDescription;
           sql += ","+enteredUsername;
           sql += ");";
         
-          console.log(sql);
-        //Sending the datas
+        //TODO: Change to your username
         var cartoDBusername = "raphaeld"  
+        //Sending the data
           $.ajax({
             type: 'POST',
             url: 'https://'+cartoDBusername+'.cartodb.com/api/v2/sql',
@@ -141,8 +142,6 @@
                 console.log("Problem saving the data");
             }
           });
-          
-        console.log("Feature has been submitted to CartoDB");
       });
       map.removeLayer(drawnItems);
       drawnItems = new L.FeatureGroup();
