@@ -2,6 +2,13 @@
 This is an attempt to create the most basic example of a web map for crowdsourcing... anything that users can draw on a map (points, squares, circles, lines, polygons...).
 It uses [Leaflet.draw](https://github.com/Leaflet/Leaflet.draw) ([demo](https://leaflet.github.io/Leaflet.draw/)) to crowdsource user-generated shapes on a map and then inserts them in a [CartoDB table](https://cartodb.com/data/).
 
+## All You Need to Do After Forking this Repository
+1. Perform all the steps under the [CartoDB](#cartodb) heading
+2. Modify the username in `index.html` (search for "TODO") to your cartodb username
+3. Go to http://YOURGITHUBUSERNAME.github.io/crowdmap-basic to play.
+4. Modify the code to your whims. 
+
+
 ## CartoDB
 
 1. Get a free [CartoDB account](https://cartodb.com/signup)
@@ -16,7 +23,7 @@ This allows you to send data from the map to the CartoDB using a publicly access
 
 ## Leaflet 
 
-1. Inspiring myself from the [excellent tutorial](http://duspviz.mit.edu/web-map-workshop/cartodb-data-collection/#) by Mike Foster ([@mjfoster83](https://github.com/mjfoster83/web-map-workshop) )
+1. Inspiring myself from the [excellent tutorial](http://duspviz.mit.edu/web-map-workshop/cartodb-data-collection/#) by Mike Foster ([@mjfoster83](https://github.com/mjfoster83/web-map-workshop)). If this is your first introduction to leaflet, you should probably go through the entire webmapping workshop
 2. Modify the `setData()` function to construct the SQL query which calls the function to insert the data to CartoDB.
 ```javascript
     //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
@@ -50,9 +57,3 @@ This allows you to send data from the map to the CartoDB using a publicly access
         }
       });
 ```
-
-## All You Need to Do After Forking
-1. Perform all the steps under the [CartoDB](#CartoDB) heading
-2. Modify the username in `index.html` (search for "TODO") to your cartodb username
-3. Go to http://YOURGITHUBUSERNAME.github.io/crowdmap-basic to play.
-4. Modify the code to your whims. 
