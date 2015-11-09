@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!--Based on https://github.com/mjfoster83/web-map-workshop/blob/master/7_advancedMapping_CartoDB/index-completed.html-->
+<html>
+  <head>
+    <title>Leaflet to CartoDB - Point Collection Tool Beta</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <link rel="stylesheet" href="http://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="header">
+        <h1>Leaflet Draw  Collection Tool</h1>
+      </div>
+      <div id="map"></div>
+      <div id="controls">
+        <p>Click points for more information, or add your own.</br></p>
+        <input type="button" onclick="startEdits()" value="Click to Start Editing">
+        <input type="button" onclick="stopEdits()" value="Stop Your Editing Session"><br>
+        <div id="credits"><p>&copy;2015, Mike Foster and Raphael Dumas</p></div>
+      </div>
+    </div>
+
+    <div id="dialog" title="Tell us About this Drawing">     
+      <form>
+        <fieldset style="border: none;">
+          <ul style="list-style-type: none; padding-left: 0px">
+            <li><label for="username">Your Name</label></li>
+            <li><input type="text" name="username" id="username" placeholder="Enter your name" class="text ui-widget-content ui-corner-all"></li>
+            <li><label for="description">About this</label></li>
+            <li><input type="text" name="description" id="description" placeholder="Description for this point" class="text ui-widget-content ui-corner-all"></li>
+          </ul>
+          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+      </form>
+    </div>
+
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <script src="http://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script>
+        
+    //TODO: Change to your username, insert function on cartodb, and cartodb tablename
+        var cartoDBusername = "raphaeld";
+        var cartoDBinsertfunction = "insert_crowd_mapping_data";
+        var cartoDBtablename = "crowdmap_basic";
+        
+    // Add Data from CartoDB using the SQL API
+    // Declare Variables
+    // Create Global Variable to hold CartoDB points
+        var cartoDBData = null;
+        
+    // Write SQL Selection Query to be Used on CartoDB Table
+        var sqlQuery = "SELECT the_geom, description, name FROM "+cartoDBtablename;
+        
+        
+    // Create Leaflet map object
+    var map = L.map('map',{ center: [42.381899, -71.122499], zoom: 13});
+    // Add Tile Layer basemap
+    var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+	   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+        });    
+        
+    CartoDB_DarkMatter.addTo(map);
+        
+        var getData = "https://"+cartoDBusername+".cartodb.com/api/v2/sql?format=GeoJSON&q="+sqlQuery;
+       
+    function getGeoJSON(){
+        $.getJSON(getData, function(data) {
+          cartoDBData = L.geoJson(data, {
+            onEachFeature: function (feature, layer) {
+              layer.bindPopup('' +feature.properties.description + '<br>Submitted by ' +feature.properties.name +'');
+            }
+          }).addTo(map)
+        });  
+    };
+ 
+    getGeoJSON();
+        
+    var drawnItems = new L.FeatureGroup();
+   
+    var drawControl = new L.Control.Draw({
+      draw : {
+        polygon : true,
+        polyline : true,
+        rectangle : true,
+        circle : true
+      },
+      edit : false,
+      remove: false
+    });
+    var controlOnMap = false;
+    function startEdits(){
+      if(controlOnMap == true){
+        map.removeControl(drawControl);
+        controlOnMap = false;
+      }
+      map.addControl(drawControl);
+      controlOnMap = true;
+    };
+    function stopEdits(){
+      map.removeControl(drawControl);
+      controlOnMap = false;
+    };
+      
+
+    map.on('draw:created', function (e) {
+        var layer = e.layer;
+        map.addLayer(drawnItems);
+        drawnItems.addLayer(layer);
+        dialog.dialog( "open" );
+    });
+    dialog = $( "#dialog" ).dialog({
+      autoOpen: false,
+      height: 300,
+      width: 350,
+      modal: true,
+      position: {
+        my: "center center",
+        at: "center center",
+        of: "#map"
+      },
+      buttons: {
+        "Add to Database": setData,
+        Cancel: function() {
+          dialog.dialog("close");
+          map.removeLayer(drawnItems);
+        }
+      },
+      close: function() {
+        form[ 0 ].reset();
+        console.log("Dialog closed");
+      }
+    });
+    form = dialog.find( "form" ).on( "submit", function( event ) {
+      event.preventDefault();
+      setData();
+    });
+ 
+    function setData() {
+      var enteredUsername = "'"+username.value+"'";
+      var enteredDescription = "'"+description.value+"'";
+      drawnItems.eachLayer(function (layer) {
+        //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
+          var drawing = "'"+JSON.stringify(layer.toGeoJSON().geometry)+"'";
+          
+          //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
+          var sql = "SELECT "+ cartoDBinsertfunction +"(";
+        sql += drawing;
+          sql += ","+enteredDescription;
+          sql += ","+enteredUsername;
+          sql += ");";
+        
+
+        //Sending the data
+          $.ajax({
+            type: 'POST',
+            url: 'https://'+cartoDBusername+'.cartodb.com/api/v2/sql',
+            crossDomain: true,
+            data: {"q":sql},
+            dataType: 'json',
+            success: function(responseData, textStatus, jqXHR) {
+              console.log("Data saved");
+
+            },
+            error: function (responseData, textStatus, errorThrown) {
+              
+                console.log("Problem saving the data");
+            }
+          });
+          
+      // Transfer drawing to the CartoDB layer
+        var newData = layer.toGeoJSON();
+          newData.properties.description = description.value;
+          newData.properties.name = username.value;
+        
+        cartoDBData.addData(newData);
+                  
+      });
+        
+//      cartoDBData.onEachFeature(function (feature, layer){
+//              layer.bindPopup('' +feature.properties.description + '<br>Submitted by ' +feature.properties.name +'');
+//        });
+      refreshLayer();
+      console.log("drawnItems has been cleared");
+      dialog.dialog("close");
+    };
+    function refreshLayer() {
+             
+      map.removeLayer(drawnItems);
+      drawnItems = new L.FeatureGroup();
+//      if (map.hasLayer(cartoDBData)) {
+//        map.removeLayer(cartoDBData);
+//      };
+//      getGeoJSON();
+    };
+    </script>
+  </body>
+</html>
+
