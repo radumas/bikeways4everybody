@@ -11,30 +11,42 @@
   <body>
     <div id="wrapper">
       <div id="header">
-        <h1>Leaflet Draw  Collection Tool</h1>
+        <h1>Bikeways for Everybody!</h1>
       </div>
       <div id="map"></div>
       <div id="controls">
-        <p>Click points for more information, or add your own.</br></p>
-        <input type="button" onclick="startEdits()" value="Click to Start Editing">
-        <input type="button" onclick="stopEdits()" value="Stop Your Editing Session"><br>
-        <div id="credits"><p>&copy;2015, Mike Foster and Raphael Dumas</p></div>
+        <p>Please add routes or intersections where you want to see protected bike infrastructure.</br></p>
+        <input type="button" onclick="startEdits()" value="Click to Start Drawing">
+        <input type="button" onclick="stopEdits()" value="Save your Input"><br>
       </div>
     </div>
-
-    <div id="dialog" title="Tell us About this Drawing">     
+    <div id="dialog-global" title="Please Enter Your First Name and Zipcode">     
       <form>
         <fieldset style="border: none;">
           <ul style="list-style-type: none; padding-left: 0px">
             <li><label for="username">Your Name</label></li>
             <li><input type="text" name="username" id="username" placeholder="Enter your name" class="text ui-widget-content ui-corner-all"></li>
-            <li><label for="description">About this</label></li>
-            <li><input type="text" name="description" id="description" placeholder="Description for this point" class="text ui-widget-content ui-corner-all"></li>
+            <li><label for="zipcode">Your 5-digit Zipcode</label></li>
+            <li><input type="text" name="zipcode" maxlength="5" pattern="[0-9]{5}" id="zipcode" placeholder="02134" class="text ui-widget-content ui-corner-all"></li>
           </ul>
           <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
         </fieldset>
       </form>
     </div>
+
+    <div id="dialog" title="Tell Us About This">     
+      <form>
+        <fieldset style="border: none;">
+          <ul style="list-style-type: none; padding-left: 0px">
+            <li><label for="description">About this</label></li>
+            <li><input type="text" name="description" id="description" placeholder="Description for this" class="text ui-widget-content ui-corner-all"></li>
+          </ul>
+          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+      </form>
+    </div>
+
+
 
     <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
     <script src="http://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
@@ -44,16 +56,7 @@
         
     //TODO: Change to your username, insert function on cartodb, and cartodb tablename
         var cartoDBusername = "raphaeld";
-        var cartoDBinsertfunction = "insert_crowd_mapping_data";
-        var cartoDBtablename = "crowdmap_basic";
-        
-    // Add Data from CartoDB using the SQL API
-    // Declare Variables
-    // Create Global Variable to hold CartoDB points
-        var cartoDBData = null;
-        
-    // Write SQL Selection Query to be Used on CartoDB Table
-        var sqlQuery = "SELECT the_geom, description, name FROM "+cartoDBtablename;
+        var cartoDBinsertfunction = "insert_bikeways_data";
         
         
     // Create Leaflet map object
@@ -66,29 +69,15 @@
         });    
         
     CartoDB_DarkMatter.addTo(map);
-        
-        var getData = "https://"+cartoDBusername+".cartodb.com/api/v2/sql?format=GeoJSON&q="+sqlQuery;
-       
-    function getGeoJSON(){
-        $.getJSON(getData, function(data) {
-          cartoDBData = L.geoJson(data, {
-            onEachFeature: function (feature, layer) {
-              layer.bindPopup('' +feature.properties.description + '<br>Submitted by ' +feature.properties.name +'');
-            }
-          }).addTo(map)
-        });  
-    };
- 
-    getGeoJSON();
-        
+                    
     var drawnItems = new L.FeatureGroup();
    
     var drawControl = new L.Control.Draw({
       draw : {
-        polygon : true,
+        polygon : false,
         polyline : true,
-        rectangle : true,
-        circle : true
+        rectangle : false,
+        circle : false
       },
       edit : false,
       remove: false
@@ -99,11 +88,13 @@
         map.removeControl(drawControl);
         controlOnMap = false;
       }
+    //TODO make Name & Zipcode dialog popup here
       map.addControl(drawControl);
       controlOnMap = true;
     };
     function stopEdits(){
       map.removeControl(drawControl);
+      //TODO Send Input to database
       controlOnMap = false;
     };
       
@@ -125,7 +116,7 @@
         of: "#map"
       },
       buttons: {
-        "Add to Database": setData,
+        "Save Information": setData,
         Cancel: function() {
           dialog.dialog("close");
           map.removeLayer(drawnItems);
@@ -136,10 +127,40 @@
         console.log("Dialog closed");
       }
     });
+    
+        //Dialog global not functioning correctly
+//    dialog-global = $( "#dialog-global" ).dialog({
+//      autoOpen: false,
+//      height: 300,
+//      width: 350,
+//      modal: true,
+//      position: {
+//        my: "center center",
+//        at: "center center",
+//        of: "#map"
+//      },
+//      buttons: {
+//        "Close": function() {
+//            dialog-global.dialog("close");
+//            //TODO Check input.
+//        }
+//      },
+//      close: function() {
+//        dialog-global.dialog("close");
+//        console.log("Dialog closed");
+//      }
+//    });    
+        
     form = dialog.find( "form" ).on( "submit", function( event ) {
       event.preventDefault();
       setData();
     });
+        
+    //Editing Leaflet.draw tooltips
+    L.drawLocal.draw.toolbar.buttons.polyline = 'Draw a bike-route you would like to see protected';
+    L.drawLocal.draw.toolbar.buttons.marker = 'Tell us about a dangerous location';
+    
+        
  
     function setData() {
       var enteredUsername = "'"+username.value+"'";
@@ -176,16 +197,9 @@
       // Transfer drawing to the CartoDB layer
         var newData = layer.toGeoJSON();
           newData.properties.description = description.value;
-          newData.properties.name = username.value;
-        
-        cartoDBData.addData(newData);
                   
       });
         
-//      cartoDBData.onEachFeature(function (feature, layer){
-//              layer.bindPopup('' +feature.properties.description + '<br>Submitted by ' +feature.properties.name +'');
-//        });
-      refreshLayer();
       console.log("drawnItems has been cleared");
       dialog.dialog("close");
     };
