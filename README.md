@@ -64,7 +64,7 @@ This allows you to send data from the map to the CartoDB using a publicly access
         }
       });
 ```
-4. After each new drawing is inserted, the data from the `drawnItems` layer is passed to the `CartoDBData` layer without re-querying the database. 
+4. After each new drawing is inserted, the data from the `drawnItems` layer is passed to the `CartoDBData` layer without re-querying the database. This does mean that a user **won't** see others' edits to the map after load. See Mike Foster's [tutorial](http://duspviz.mit.edu/web-map-workshop/cartodb-data-collection/#) for the easy fix to reload the data from CartoDB after every draw.
 ```javascript
     // Transfer drawing to the CartoDB layer
     var newData = layer.toGeoJSON();
