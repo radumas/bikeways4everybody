@@ -44,7 +44,7 @@ This allows you to send data from the map to the CartoDB using a publicly access
       sql += ");";
    ```  
 3. And then add the sql query to an AJAX call in order to pass the data to your CartoDB table
-```javascript
+    ```javascript
     //TODO: Change to your username
     var cartoDBusername = "raphaeld"  
     //Sending the data
@@ -63,13 +63,13 @@ This allows you to send data from the map to the CartoDB using a publicly access
             console.log("Problem saving the data");
         }
       });
-```
+      ```
 4. After each new drawing is inserted, the data from the `drawnItems` layer is passed to the `CartoDBData` layer without re-querying the database. This does mean that a user **won't** see others' edits to the map after load. See Mike Foster's [tutorial](http://duspviz.mit.edu/web-map-workshop/cartodb-data-collection/#) for the easy fix to reload the data from CartoDB after every draw.
-```javascript
+    ```javascript
     // Transfer drawing to the CartoDB layer
     var newData = layer.toGeoJSON();
       newData.properties.description = description.value;
       newData.properties.name = username.value;
 
     cartoDBData.addData(newData);
-```
+    ```
