@@ -41,6 +41,21 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script>
+        
+    //TODO: Change to your username, insert function on cartodb, and cartodb tablename
+        var cartoDBusername = "raphaeld";
+        var cartoDBinsertfunction = "insert_crowd_mapping_data";
+        var cartoDBtablename = "crowdmap_basic";
+        
+    // Add Data from CartoDB using the SQL API
+    // Declare Variables
+    // Create Global Variable to hold CartoDB points
+        var cartoDBData = null;
+        
+    // Write SQL Selection Query to be Used on CartoDB Table
+        var sqlQuery = "SELECT the_geom, description, name FROM "+cartoDBtablename;
+        
+        
     // Create Leaflet map object
     var map = L.map('map',{ center: [42.381899, -71.122499], zoom: 13});
     // Add Tile Layer basemap
@@ -48,10 +63,24 @@
 	   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
         subdomains: 'abcd',
         maxZoom: 19
-        });
-    
+        });    
+        
     CartoDB_DarkMatter.addTo(map);
+        
+        var getData = "https://"+cartoDBusername+".cartodb.com/api/v2/sql?format=GeoJSON&q="+sqlQuery;
+       
+    function getGeoJSON(){
+        $.getJSON(getData, function(data) {
+          cartoDBData = L.geoJson(data, {
+            onEachFeature: function (feature, layer) {
+              layer.bindPopup('' +feature.properties.description + '<br>Submitted by ' +feature.properties.name +'');
+            }
+          }).addTo(map)
+        });  
+    };
  
+    getGeoJSON();
+        
     var drawnItems = new L.FeatureGroup();
    
     var drawControl = new L.Control.Draw({
@@ -77,6 +106,8 @@
       map.removeControl(drawControl);
       controlOnMap = false;
     };
+      
+
     map.on('draw:created', function (e) {
         var layer = e.layer;
         map.addLayer(drawnItems);
@@ -118,14 +149,13 @@
           var drawing = "'"+JSON.stringify(layer.toGeoJSON().geometry)+"'";
           
           //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
-          var sql = "SELECT insert_crowd_mapping_data(";
+          var sql = "SELECT "+ cartoDBinsertfunction +"(";
         sql += drawing;
           sql += ","+enteredDescription;
           sql += ","+enteredUsername;
           sql += ");";
         
-        //TODO: Change to your username
-        var cartoDBusername = "raphaeld"  
+
         //Sending the data
           $.ajax({
             type: 'POST',
@@ -142,16 +172,31 @@
                 console.log("Problem saving the data");
             }
           });
+          
+      // Transfer drawing to the CartoDB layer
+        var newData = layer.toGeoJSON();
+          newData.properties.description = description.value;
+          newData.properties.name = username.value;
+        
+        cartoDBData.addData(newData);
+                  
       });
-      map.removeLayer(drawnItems);
-      drawnItems = new L.FeatureGroup();
+        
+//      cartoDBData.onEachFeature(function (feature, layer){
+//              layer.bindPopup('' +feature.properties.description + '<br>Submitted by ' +feature.properties.name +'');
+//        });
+      refreshLayer();
       console.log("drawnItems has been cleared");
       dialog.dialog("close");
     };
     function refreshLayer() {
-      if (map.hasLayer(cartoDBPoints)) {
-        map.removeLayer(cartoDBPoints);
-      };
+             
+      map.removeLayer(drawnItems);
+      drawnItems = new L.FeatureGroup();
+//      if (map.hasLayer(cartoDBData)) {
+//        map.removeLayer(cartoDBData);
+//      };
+//      getGeoJSON();
     };
     </script>
   </body>

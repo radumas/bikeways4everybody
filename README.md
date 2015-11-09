@@ -7,7 +7,10 @@ It uses [Leaflet.draw](https://github.com/Leaflet/Leaflet.draw) ([demo](https://
 
 ## All You Need to Do After Forking this Repository
 1. Perform all the steps under the [CartoDB](#cartodb) heading
-2. Modify the username in `index.html` (search for "TODO") to your cartodb username
+2. Modify the following variables in `index.html` (search for "TODO") 
+   `cartoDBusername` to your cartodb username
+   `cartoDBinsertfunction` to the name of your insert function
+   `cartoDBtablename` to the name of your table in CartoDB
 3. Go to http://YOURGITHUBUSERNAME.github.io/crowdmap-basic to play.
 4. Modify the code to your whims. 
 
@@ -60,4 +63,13 @@ This allows you to send data from the map to the CartoDB using a publicly access
             console.log("Problem saving the data");
         }
       });
+```
+4. After each new drawing is inserted, the data from the `drawnItems` layer is passed to the `CartoDBData` layer without re-querying the database. 
+```javascript
+    // Transfer drawing to the CartoDB layer
+    var newData = layer.toGeoJSON();
+      newData.properties.description = description.value;
+      newData.properties.name = username.value;
+
+    cartoDBData.addData(newData);
 ```
