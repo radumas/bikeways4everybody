@@ -2,7 +2,7 @@
 <!--Based on https://github.com/mjfoster83/web-map-workshop/blob/master/7_advancedMapping_CartoDB/index-completed.html-->
 <html>
   <head>
-    <title>Leaflet to CartoDB - Point Collection Tool Beta</title>
+    <title>Bikeways for Everybody!</title>
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
     <link rel="stylesheet" href="http://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
@@ -13,20 +13,20 @@
       <div id="header">
         <h1>Bikeways for Everybody!</h1>
       </div>
+        <p>Please add routes or intersections where you want to see protected bike infrastructure.</br></p>
       <div id="map"></div>
       <div id="controls">
-        <p>Please add routes or intersections where you want to see protected bike infrastructure.</br></p>
         <input type="button" onclick="startEdits()" value="Click to Start Drawing">
         <input type="button" onclick="stopEdits()" value="Save your Input"><br>
       </div>
     </div>
-    <div id="dialog-global" title="Please Enter Your First Name and Zipcode">     
+    <div id="dialogGlobal" title="About You">     
       <form>
         <fieldset style="border: none;">
           <ul style="list-style-type: none; padding-left: 0px">
-            <li><label for="username">Your Name</label></li>
+            <li><label for="username">Please Enter Your First Name</label></li>
             <li><input type="text" name="username" id="username" placeholder="Enter your name" class="text ui-widget-content ui-corner-all"></li>
-            <li><label for="zipcode">Your 5-digit Zipcode</label></li>
+            <li><label for="zipcode">Please Enter Your Zipcode</label></li>
             <li><input type="text" name="zipcode" maxlength="5" pattern="[0-9]{5}" id="zipcode" placeholder="02134" class="text ui-widget-content ui-corner-all"></li>
           </ul>
           <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
@@ -52,15 +52,22 @@
     <script src="http://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="http://tiles.mapc.org/layers.js"></script>
     <script>
         
     //TODO: Change to your username, insert function on cartodb, and cartodb tablename
         var cartoDBusername = "raphaeld";
         var cartoDBinsertfunction = "insert_bikeways_data";
+        var zip= 0;
+
         
-        
+    //TODO Set Map Bounds
+//    var southWest = L.latLng(40.712, -74.227),
+//    northEast = L.latLng(40.774, -74.125),
+//    bounds = L.latLngBounds(southWest, northEast);
+//        
     // Create Leaflet map object
-    var map = L.map('map',{ center: [42.381899, -71.122499], zoom: 13});
+    var map = L.map('map',{ center: [42.381899, -71.122499], zoom: 13, minZoom : 11});
     // Add Tile Layer basemap
     var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
 	   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
@@ -88,7 +95,7 @@
         map.removeControl(drawControl);
         controlOnMap = false;
       }
-    //TODO make Name & Zipcode dialog popup here
+      dialogGlobal.dialog( "open" );
       map.addControl(drawControl);
       controlOnMap = true;
     };
@@ -129,27 +136,28 @@
     });
     
         //Dialog global not functioning correctly
-//    dialog-global = $( "#dialog-global" ).dialog({
-//      autoOpen: false,
-//      height: 300,
-//      width: 350,
-//      modal: true,
-//      position: {
-//        my: "center center",
-//        at: "center center",
-//        of: "#map"
-//      },
-//      buttons: {
-//        "Close": function() {
-//            dialog-global.dialog("close");
-//            //TODO Check input.
-//        }
-//      },
-//      close: function() {
-//        dialog-global.dialog("close");
-//        console.log("Dialog closed");
-//      }
-//    });    
+    dialogGlobal = $( "#dialogGlobal" ).dialog({
+      autoOpen: false,
+      height: 300,
+      width: 350,
+      modal: true,
+      position: {
+        my: "center center",
+        at: "center center",
+        of: "#map"
+      },
+      buttons: {
+        "Close": function() {
+            dialogGlobal.dialog("close");
+            //TODO Check input.
+            zip = parseInt(zipcode.value);
+        }
+      },
+      close: function() {
+        dialogGlobal.dialog("close");
+        console.log("Dialog closed");
+      }
+    });    
         
     form = dialog.find( "form" ).on( "submit", function( event ) {
       event.preventDefault();
@@ -161,20 +169,47 @@
     L.drawLocal.draw.toolbar.buttons.marker = 'Tell us about a dangerous location';
     
         
+    //MAPC layers.
+    
+        
+        //From https://radumas.github.io/coppe-ltc/mapping/2015/07/31/Modifying-a-webmap/
+    var layerOrder=new Array();
+    function restackLayers() {
+        for (index = 0; index < layerOrder.length; index++) {
+            layerOrder[index].bringToFront();
+        }
+    }
+        //TODO Bike Layers go here
+//    map.on('overlayadd', restackLayers);
+//        var feature_group = new L.featureGroup([]);
+//        layerOrder[layerOrder.length] = onroad;
+//        feature_group.addLayer(onroad);
+//        layerOrder[layerOrder.length] = paths;
+//        feature_group.addLayer(paths);
+//    var overlays = {
+//        "On-road Bicycle Facilities": onroad,
+//        "Paths and Trails": paths
+//    };
+//      layersControl = new L.Control.Layers({}, overlays, {
+//        collapsed: false
+//      });
+//      map.addControl(layersControl);
  
     function setData() {
       var enteredUsername = "'"+username.value+"'";
       var enteredDescription = "'"+description.value+"'";
+        var zip = parseInt(zipcode.value);
       drawnItems.eachLayer(function (layer) {
         //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
           var drawing = "'"+JSON.stringify(layer.toGeoJSON().geometry)+"'";
           
           //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
+          //TODO Add Zipcode
           var sql = "SELECT "+ cartoDBinsertfunction +"(";
         sql += drawing;
           sql += ","+enteredDescription;
           sql += ","+enteredUsername;
-          sql += ");";
+          sql += ","+zip+");";
         
 
         //Sending the data

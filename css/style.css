@@ -23,13 +23,14 @@ h1 {
 }
 
 #wrapper {
-  width: 750px;
+  width: 100%;
+    height: 100%;
 }
 
 #map {
-  width: 750px;
+  width: 100%;
   margin: 0 auto;
-  height: 375px;
+  height: 450px;
 }
 
 #controls {
