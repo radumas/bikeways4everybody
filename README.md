@@ -20,7 +20,7 @@ Have a map. That people can draw lines representing the bike routes they would l
 ## Current path forward
 1. ~~Based on [this tutorial](http://blog.cartodb.com/read-and-write-to-cartodb-with-the-leaflet-draw-plugin/) from CartoDB, it seems easy to create a sql function to insert data into a CartoDB database that is publicly available while hiding security authorization, thus eliminating the need for a secure backend (woo woo!). So it should be easy to create a [leaflet map on github](https://github.com/radumas/crowdmap-basic) with leaflet draw functionality that draws to a CartoDB database.~~
 2. **Add bike layers to the map**
-3. Make username & zipcode global variables entered when editing begins and ensure integrity of zipcode value.
+3. ~~Make username & zipcode global variables entered when editing begins and ensure integrity of zipcode value.~~
 3. Add the MapBox directions functionality
 4. Add pop-up instructions and an about section and otherwise styling the front-end.
 5. Test
