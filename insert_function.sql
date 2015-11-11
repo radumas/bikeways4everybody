@@ -1,11 +1,11 @@
-DROP FUNCTION IF EXISTS insert_bikeways_data(text,text,text,numeric);
+DROP FUNCTION IF EXISTS insert_bikeways_data(text,text,text,text);
 --Assumes only one value being inserted
 
 CREATE OR REPLACE FUNCTION insert_bikeways_data (
     _geojson TEXT,
     _notes TEXT,
     _name TEXT,
-    _zip numeric)
+    _zip TEXT)
 --Has to return something in order to be used in a "SELECT" statement
 RETURNS integer
 AS $$
@@ -25,4 +25,4 @@ $$
 LANGUAGE plpgsql SECURITY DEFINER ;
 
 --Grant access to the public user
-GRANT EXECUTE ON FUNCTION insert_bikeways_data(text,text,text,numeric) TO publicuser;
+GRANT EXECUTE ON FUNCTION insert_bikeways_data(text,text,text,text) TO publicuser;

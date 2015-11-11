@@ -61,13 +61,15 @@
         var zip= 0;
 
         
-    //TODO Set Map Bounds
-//    var southWest = L.latLng(40.712, -74.227),
-//    northEast = L.latLng(40.774, -74.125),
-//    bounds = L.latLngBounds(southWest, northEast);
-//        
+    //Set Map Bounds
+    var southWest = L.latLng(42.24, -71.192),
+    northEast = L.latLng(42.42, -70.986),
+    bounds = L.latLngBounds(southWest, northEast);
+        
+    
+        
     // Create Leaflet map object
-    var map = L.map('map',{ center: [42.381899, -71.122499], zoom: 13, minZoom : 11});
+    var map = L.map('map',{ center: [42.381899, -71.122499], zoom: 13, minZoom : 13, maxBounds : bounds});
     // Add Tile Layer basemap
     var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
 	   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
@@ -76,6 +78,13 @@
         });    
         
     CartoDB_DarkMatter.addTo(map);
+        
+    //Empty to store drawings after they are submitted
+    var submittedData = L.geoJson(false, {
+            onEachFeature: function (feature, layer) {
+              layer.bindPopup('<b>'+feature.properties.name +', '+ feature.properties.zipcode +'</b><br>'                               +feature.properties.description +'');
+            }
+          }).addTo(map);
                     
     var drawnItems = new L.FeatureGroup();
    
@@ -150,7 +159,7 @@
         "Close": function() {
             dialogGlobal.dialog("close");
             //TODO Check input.
-            zip = parseInt(zipcode.value);
+            zip = zipcode.value;
         }
       },
       close: function() {
@@ -198,13 +207,11 @@
     function setData() {
       var enteredUsername = "'"+username.value+"'";
       var enteredDescription = "'"+description.value+"'";
-        var zip = parseInt(zipcode.value);
       drawnItems.eachLayer(function (layer) {
         //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
           var drawing = "'"+JSON.stringify(layer.toGeoJSON().geometry)+"'";
           
           //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
-          //TODO Add Zipcode
           var sql = "SELECT "+ cartoDBinsertfunction +"(";
         sql += drawing;
           sql += ","+enteredDescription;
@@ -230,11 +237,17 @@
           });
           
       // Transfer drawing to the CartoDB layer
-        var newData = layer.toGeoJSON();
+          var newData = layer.toGeoJSON();
           newData.properties.description = description.value;
+          newData.properties.name = username.value;
+          newData.properties.zipcode = zip;
+        submittedData.addData(newData);
+          
                   
       });
         
+        //TODO Change this if editing is allowed
+        refreshLayer();
       console.log("drawnItems has been cleared");
       dialog.dialog("close");
     };

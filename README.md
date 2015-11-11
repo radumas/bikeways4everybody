@@ -5,7 +5,7 @@ Crowd-sourcing lines on a map to solicit public input on ideal locations for ful
 ## Inspirations:  
  * Code for Philly with the Philadelphia Bike coalition developed an [app to log people's routes](http://cyclephilly.org/) and produced this [web-map](http://www.dvrpc.org/webmaps/cyclephilly/)
  * Mike Foster's [work](https://github.com/mjfoster83/neighborhoods) on crowdsourcing neighbourhoods
- * http://tiles.mapc.org/ For clipping a basemap to a polygon
+ * BostonGIS [tutorial](http://www.bostongis.com/PrinterFriendly.aspx?content_name=using_custom_osm_tiles) For clipping osm tiles to a polygon 
  * Sarah Bindman's app to [map bikeroutes](https://github.com/sbindman/Veloroute) (Great for the "snapping of lines to streets"--actually directions from MapBox. Currently with reduced functionality due to restricted APIs). 
 
 ## Vision  
