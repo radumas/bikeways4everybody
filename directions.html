@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<!--Based on https://github.com/mjfoster83/web-map-workshop/blob/master/7_advancedMapping_CartoDB/index-completed.html-->
+<html>
+  <head>
+    <title>Bikeways for Everybody!</title>
+    <script src="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css"  />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="header">
+        <h1>Bikeways for Everybody!</h1>
+      </div>
+        <p>Please add routes or intersections where you want to see protected bike infrastructure.</br></p>
+      <div id="map"></div>
+      <div id="controls">
+        <input type="button" onclick="startEdits()" value="Click to Start Drawing">
+        <input type="button" onclick="stopEdits()" value="Save your Input"><br>
+      </div>
+    </div>
+    <div id="dialogGlobal" title="About You">     
+      <form>
+        <fieldset style="border: none;">
+          <ul style="list-style-type: none; padding-left: 0px">
+            <li><label for="username">Please Enter Your First Name</label></li>
+            <li><input type="text" name="username" id="username" placeholder="Enter your name" class="text ui-widget-content ui-corner-all"></li>
+            <li><label for="zipcode">Please Enter Your Zipcode</label></li>
+            <li><input type="text" name="zipcode" maxlength="5" pattern="[0-9]{5}" id="zipcode" placeholder="02134" class="text ui-widget-content ui-corner-all"></li>
+          </ul>
+          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="dialog" title="Tell Us About This">     
+      <form>
+        <fieldset style="border: none;">
+          <ul style="list-style-type: none; padding-left: 0px">
+            <li><label for="description">About this</label></li>
+            <li><input type="text" name="description" id="description" placeholder="Description for this" class="text ui-widget-content ui-corner-all"></li>
+          </ul>
+          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+      </form>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="js/definitions.js"></script>
+    <script src="js/directions.js"></script>
+    <script>
+        
+            //TODO: Change to your username, insert function on cartodb, and cartodb tablename
+        var cartoDBusername = "raphaeld";
+        var cartoDBinsertfunction = "insert_bikeways_data";
+        var zip= 0;
+
+        
+    //Set Map Bounds
+    var southWest = L.latLng(42.24, -71.192),
+    northEast = L.latLng(42.42, -70.986),
+    bounds = L.latLngBounds(southWest, northEast);
+        
+        L.mapbox.accessToken = 'pk.eyJ1IjoicmVtb3RlZ2VudHJpZnkiLCJhIjoiY2lnanJzMjJpMDA1dnYxbHo5MTZtdGZsYSJ9.gLE8d40zmDAtMSSZyd2h1Q';
+// Create a map in the div #map
+        var map = L.mapbox.map('map', 'remotegentrify.cigjrs0xw0078u1kr4vn4g6wg',{ center: [42.381899, -71.122499], zoom: 13, minZoom : 13, maxBounds : bounds});
+        
+        
+        //Directions stuff
+        
+        
+        
+        function startEdits() {
+            currentLine = startNewLine(routeNum);
+            dialogGlobal.dialog( "open" );
+
+        };
+//        $("#add-route").on("click", function() {
+//                currentLine = startNewLine(routeNum);
+//                $("#add-route").html('<img src="static/img/addrouteclicked.png" />');
+//                $("#add-route").attr('disabled', 'disabled');
+//                $("#add-route").tooltipster("disable");
+//        });
+
+        /* button the triggers adding a marker
+    */
+        map.on('click', addMarker);
+        
+        dialog = $( "#dialog" ).dialog({
+      autoOpen: false,
+      height: 300,
+      width: 350,
+      modal: true,
+      position: {
+        my: "center center",
+        at: "center center",
+        of: "#map"
+      },
+      buttons: {
+        "Save Information": setData,
+        Cancel: function() {
+          dialog.dialog("close");
+        }
+      },
+      close: function() {
+        form[ 0 ].reset();
+        console.log("Dialog closed");
+      }
+    });
+    
+    dialogGlobal = $( "#dialogGlobal" ).dialog({
+      autoOpen: false,
+      height: 300,
+      width: 350,
+      modal: true,
+      position: {
+        my: "center center",
+        at: "center center",
+        of: "#map"
+      },
+      buttons: {
+        "Close": function() {
+            dialogGlobal.dialog("close");
+            //TODO Check input.
+            zip = "'"+zipcode.value+"'";
+        }
+      },
+      close: function() {
+        dialogGlobal.dialog("close");
+        console.log("Global dialog closed");
+      }
+    });    
+        
+    form = dialog.find( "form" ).on( "submit", function( event ) {
+      event.preventDefault();
+      setData();
+    });
+        
+        function setData() {
+      var enteredUsername = "'"+username.value+"'";
+      var enteredDescription = "'"+description.value+"'";
+    //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
+      var drawing = "'"+JSON.stringify(currentLine.polyline.toGeoJSON().geometry)+"'";
+
+      //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
+      var sql = "SELECT "+ cartoDBinsertfunction +"(";
+      sql += drawing;
+      sql += ","+enteredDescription;
+      sql += ","+enteredUsername;
+      sql += ","+zip+");";
+
+//        console.log(sql); //For testing
+            
+    //Sending the data
+      $.ajax({
+        type: 'POST',
+        url: 'https://'+cartoDBusername+'.cartodb.com/api/v2/sql',
+        crossDomain: true,
+        data: {"q":sql},
+        dataType: 'json',
+        success: function(responseData, textStatus, jqXHR) {
+          console.log("Data saved");
+
+        },
+        error: function (responseData, textStatus, errorThrown) {
+
+            console.log("Problem saving the data");
+        }
+      });
+
+
+    dialog.dialog("close");
+/*        Moved from endLine() in directions.js*/
+    routeNum ++;
+    currentLine = null;
+    };
+  
+            
+                </script>
+  </body>
+</html>

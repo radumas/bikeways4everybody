@@ -1,14 +1,17 @@
-@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
 
 body {
   margin: 0px;
   font-family: 'Open Sans', Helvetica, sans-serif;
 }
 
+/*
+
 img {
   float: left;
   padding-right: 10px;
 }
+*/
 
 p {
   font-size: 15px;

@@ -57,6 +57,7 @@ WHEN  "BIKE_FAC" = 8 THEN 2 --Ames street
 END
 ```
 #### MAPC
+First, bikefacili must be 1, which means the infrastructure is built. 
 Not sure what to do about 6s ("To be determined"). See how many intersect Boston/Cambridge infra?
 ```
 CASE
@@ -75,4 +76,7 @@ END
 
 ```
 ### Overlapping infrastructure
-Since the Boston & Cambridge layers are more recent than the MAPC one, they should take precedence when infrastructure overlaps.
+Since the Boston & Cambridge layers are more recent than the MAPC one, they should take precedence when infrastructure overlaps. I created a 5m buffer around the Boston & Cambridge layers separately, and then selected lines on the MAPC layer which were within these buffers. After inverting the selection, I saved only the lines that were not duplicated in those two layers.
+
+### Combining
+After putting 
