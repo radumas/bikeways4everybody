@@ -2,23 +2,37 @@
 <!--Based on https://github.com/mjfoster83/web-map-workshop/blob/master/7_advancedMapping_CartoDB/index-completed.html-->
 <html>
   <head>
+    <meta charset=utf-8 />
     <title>Bikeways for Everybody!</title>
     <script src="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js"></script>
     <link rel="stylesheet" href="http://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css"  />
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   </head>
   <body>
     <div id="wrapper">
       <div id="header">
         <h1>Bikeways for Everybody!</h1>
       </div>
-        <p>Please add routes or intersections where you want to see protected bike infrastructure.</br></p>
-      <div id="map"></div>
+        <p>Please add routes or intersections where you want to see protected bike infrastructure.</p>
+    <div id="leftBar">
+        <span id="add-point" class="fa-stack fa-2x icon-hover">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-exclamation fa-inverse fa-stack-1x"></i></span>
+        <br>
+        <span id="add-route" class="fa-stack fa-2x icon-hover">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-pencil fa-stack-1x fa-inverse"></i>
+        </span>
+    </div>
+    
+    <div id="map"></div>
+    
       <div id="controls">
         <input type="button" onclick="startEdits()" value="Click to Start Drawing">
-        <input type="button" onclick="stopEdits()" value="Save your Input"><br>
+        <input type="button" onclick="stopEdits()" value="Click to Stop Drawing"><br>
       </div>
     </div>
     <div id="dialogGlobal" title="About You">     
@@ -57,38 +71,85 @@
             //TODO: Change to your username, insert function on cartodb, and cartodb tablename
         var cartoDBusername = "raphaeld";
         var cartoDBinsertfunction = "insert_bikeways_data";
-        var zip= 0;
+        var zip= 0, enteredUsername ="";
 
         
-    //Set Map Bounds
-    var southWest = L.latLng(42.24, -71.192),
-    northEast = L.latLng(42.42, -70.986),
-    bounds = L.latLngBounds(southWest, northEast);
+        //Set Map Bounds
+        var southWest = L.latLng(42.24, -71.192),
+        northEast = L.latLng(42.42, -70.986),
+        bounds = L.latLngBounds(southWest, northEast);
         
-        L.mapbox.accessToken = 'pk.eyJ1IjoicmVtb3RlZ2VudHJpZnkiLCJhIjoiY2lnanJzMjJpMDA1dnYxbHo5MTZtdGZsYSJ9.gLE8d40zmDAtMSSZyd2h1Q';
+        L.mapbox.accessToken =                         
+            'pk.eyJ1IjoicmVtb3RlZ2VudHJpZnkiLCJhIjoiY2lnanJzMjJpMDA1dnYxbHo5MTZtdGZsYSJ9.gLE8d40zmDAtMSSZyd2h1Q';
 // Create a map in the div #map
-        var map = L.mapbox.map('map', 'remotegentrify.cigjrs0xw0078u1kr4vn4g6wg',{ center: [42.381899, -71.122499], zoom: 13, minZoom : 13, maxBounds : bounds});
+        var map = L.mapbox.map('map', 'remotegentrify.cigjrs0xw0078u1kr4vn4g6wg',{ center: [42.381899, -71.122499],
+            zoom: 13, minZoom : 13, maxBounds : bounds, zoomControl :false });
         
+        L.control.zoom({position : 'bottomleft'}).addTo(map);
         
-        //Directions stuff
+            //Empty to store drawings after they are submitted
+        var submittedData = L.geoJson(false, {
+            onEachFeature: function (feature, layer) {
+              layer.bindPopup('<b>'+feature.properties.name +', '+ feature.properties.zipcode +'</b><br>'                               +feature.properties.description +'');
+            }
+          }).addTo(map);
+                    
+        var drawnItems = new L.FeatureGroup();
         
+        $(document).ready(function () {
+            $('#leftBar').hide();
+        });
         
+        var drawControl = new L.Control.Draw({
+          draw : {
+            polygon : false,
+            polyline : false,
+            rectangle : false,
+            circle : false
+          },
+          edit : false,
+          remove: false
+        });
+        var controlOnMap = false;
+        map.on('draw:created', function (e) {
+            var layer = e.layer;
+            map.addLayer(drawnItems);
+            drawnItems.addLayer(layer);
+            dialog.dialog( "open" );
+        });
         
         function startEdits() {
-            currentLine = startNewLine(routeNum);
-            dialogGlobal.dialog( "open" );
-
+            if(drawnOnce){
+                
+            }
+            else{
+                drawnOnce = true;
+                dialogGlobal.dialog( "open" );
+            }
+            
+            $('#leftBar').show();
         };
-//        $("#add-route").on("click", function() {
-//                currentLine = startNewLine(routeNum);
-//                $("#add-route").html('<img src="static/img/addrouteclicked.png" />');
-//                $("#add-route").attr('disabled', 'disabled');
+        
+        function stopEdits() {
+//            TODO Stop all drawing
+            $('#leftBar').hide();
+        };
+        $("#add-route").on("click", function() {
+            new L.Draw.Marker(map, drawControl.options.marker).disable();
+            routeDraw = true;
+            markerDraw = false;
+            currentLine = startNewLine(routeNum);
 //                $("#add-route").tooltipster("disable");
-//        });
+            map.on('click', addMarker);
+        });
 
-        /* button the triggers adding a marker
+        /* button that triggers adding a marker
     */
-        map.on('click', addMarker);
+        $("#add-point").on("click", function(){
+           new L.Draw.Marker(map, drawControl.options.marker).enable();
+            routeDraw = false;
+            markerDraw = true;
+        });
         
         dialog = $( "#dialog" ).dialog({
       autoOpen: false,
@@ -124,9 +185,19 @@
       },
       buttons: {
         "Close": function() {
-            dialogGlobal.dialog("close");
-            //TODO Check input.
-            zip = "'"+zipcode.value+"'";
+            zip = zipcode.value;
+            var name = username.value;
+            var checkedValues = dialogGlobalChecker(name, zip);
+            if (checkedValue.valid){
+                zip = "'"+zip+"'";
+                enteredUsername = "'"+name+"'";
+
+                dialogGlobal.dialog("close");
+            }
+            else{
+                //TODO Print checkedValue.error
+            }
+            
         }
       },
       close: function() {
@@ -140,11 +211,51 @@
       setData();
     });
         
+        function dialogGlobalChecker(name, zip) {
+            var error = "";
+            var valid = true;
+            if(name.length < 3) {
+                error = "Your name is too short.";
+                valid = false;
+            }
+            if(zip.length < 5){
+                error += "Your zipcode is too short.";
+                valid = false;
+            }
+            try{
+                var parse_zip = parseInt(zip);
+            }
+            catch (e){
+                error += "Your zipcode contains incorrect characters.";
+                valid = false;
+            }
+            return {valid: valid, error: error};
+            
+        }
+        
         function setData() {
-      var enteredUsername = "'"+username.value+"'";
       var enteredDescription = "'"+description.value+"'";
     //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
-      var drawing = "'"+JSON.stringify(currentLine.polyline.toGeoJSON().geometry)+"'";
+            
+      var drawing = "";
+        if(routeDraw){
+            drawing = "'"+JSON.stringify(currentLine.polyline.toGeoJSON().geometry)+"'";
+        };
+        if(markerDraw){
+            drawnItems.eachLayer(function (layer) {
+                //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
+                var newData = layer.toGeoJSON();
+                drawing = "'"+JSON.stringify(newData.geometry)+"'";
+                
+                // Transfer drawing to the CartoDB layer
+                  newData.properties.description = description.value;
+                  newData.properties.name = username.value;
+                  newData.properties.zipcode = zip;
+                submittedData.addData(newData);
+                //TODO Change this if editing is allowed
+                refreshLayer();
+            });
+        };
 
       //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
       var sql = "SELECT "+ cartoDBinsertfunction +"(";
@@ -178,8 +289,16 @@
     routeNum ++;
     currentLine = null;
     };
-  
+      function refreshLayer() {
+             
+      map.removeLayer(drawnItems);
+      drawnItems = new L.FeatureGroup();
+//      if (map.hasLayer(cartoDBData)) {
+//        map.removeLayer(cartoDBData);
+//      };
+//      getGeoJSON();
+    };
             
-                </script>
+    </script>
   </body>
 </html>

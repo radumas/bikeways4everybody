@@ -13,6 +13,28 @@ img {
 }
 */
 
+#leftBar {
+    left: 5px;
+    position: absolute;
+    z-index: 1000;
+    top: 20%;
+}
+
+
+#add-route {
+    display:inline-block;
+    cursor: pointer;
+}
+
+.icon-hover:hover {
+    color: aqua;
+}
+
+#add-point {
+    display:inline-block;
+    cursor: pointer;
+}
+
 p {
   font-size: 15px;
   line-height: 25px;
