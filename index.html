@@ -5,7 +5,7 @@
     <title>Bikeways for Everybody!</title>
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
     <link rel="stylesheet" href="http://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
@@ -52,7 +52,6 @@
     <script src="http://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-    <script type="text/javascript" src="http://tiles.mapc.org/layers.js"></script>
     <script>
         
     //TODO: Change to your username, insert function on cartodb, and cartodb tablename
@@ -144,7 +143,6 @@
       }
     });
     
-        //Dialog global not functioning correctly
     dialogGlobal = $( "#dialogGlobal" ).dialog({
       autoOpen: false,
       height: 300,
@@ -159,7 +157,7 @@
         "Close": function() {
             dialogGlobal.dialog("close");
             //TODO Check input.
-            zip = zipcode.value;
+            zip = "'"+zipcode.value+"'";        
         }
       },
       close: function() {
@@ -178,7 +176,6 @@
     L.drawLocal.draw.toolbar.buttons.marker = 'Tell us about a dangerous location';
     
         
-    //MAPC layers.
     
         
         //From https://radumas.github.io/coppe-ltc/mapping/2015/07/31/Modifying-a-webmap/
