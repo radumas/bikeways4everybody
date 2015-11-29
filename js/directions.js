@@ -8,7 +8,7 @@ function startNewLine(rNum) {
 /* Ends the current line
  */
  function endLine(route1) {
-    console.log(currentLine.polyline.toGeoJSON());
+     $("#add-route").removeClass('icon-click');
     dialog.dialog( "open" );
     
  }

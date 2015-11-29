@@ -13,11 +13,27 @@ img {
 }
 */
 
+.circle {
+    border-radius: 50%;
+    behavior: url(PIE.htc);
+}
+.type1 {
+    padding: 5px;
+    width: 50px;
+    height: 50px;
+    background: #cbcbcb;
+    text-align: center;
+    vertical-align: middle;
+    border: 3px solid #000;
+    margin-bottom: 5px;
+}
+
 #leftBar {
-    left: 5px;
+    left: 10px;
     position: absolute;
     z-index: 1000;
     top: 20%;
+    padding: 5px;
 }
 
 
@@ -27,7 +43,11 @@ img {
 }
 
 .icon-hover:hover {
-    color: aqua;
+    background: aqua;
+}
+
+.icon-click {
+    background: #3585a3;
 }
 
 #add-point {

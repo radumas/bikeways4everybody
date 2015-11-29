@@ -10,6 +10,21 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<!--    ToolTipster    -->
+    <link rel="stylesheet" type="text/css" href="css/tooltipster.css" />
+      <link rel="stylesheet" type="text/css" href="css/tooltipster-light.css"/>
+    <script type="text/javascript" src="js/jquery.tooltipster.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.tooltip').tooltipster({
+                theme: 'tooltipster-light',
+                position:'right'
+            });
+
+        });
+    </script>
   </head>
   <body>
     <div id="wrapper">
@@ -18,14 +33,18 @@
       </div>
         <p>Please add routes or intersections where you want to see protected bike infrastructure.</p>
     <div id="leftBar">
-        <span id="add-point" class="fa-stack fa-2x icon-hover">
+<!--
+        <span id="add-point" class="fa-stack fa-2x icon-hover tooltip" title="Add dangerous locations to the map by clicking here.">
             <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-exclamation fa-inverse fa-stack-1x"></i></span>
+<i class="fa fa-exclamation fa-inverse fa-stack-1x"></i>
+-->
+        <div id="add-point" class="circle type1 icon-hover tooltip" title="Add dangerous locations to the map">
+            <i class="fa fa-exclamation fa-inverse fa-3x"></i></div>
+<!--        </span>-->
         <br>
-        <span id="add-route" class="fa-stack fa-2x icon-hover">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-pencil fa-stack-1x fa-inverse"></i>
-        </span>
+        <div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you would like to see protected infrastructure">
+            <i class="fa fa-pencil fa-3x fa-inverse"></i>
+        </div>
     </div>
     
     <div id="map"></div>
@@ -61,8 +80,6 @@
       </form>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script src="http://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
     <script src="js/definitions.js"></script>
     <script src="js/directions.js"></script>
@@ -112,6 +129,7 @@
         });
         var controlOnMap = false;
         map.on('draw:created', function (e) {
+            $("#add-point").removeClass('icon-click');
             var layer = e.layer;
             map.addLayer(drawnItems);
             drawnItems.addLayer(layer);
@@ -135,6 +153,8 @@
             $('#leftBar').hide();
         };
         $("#add-route").on("click", function() {
+            $("#add-route").addClass('icon-click');
+            $("#add-point").removeClass('icon-click');
             new L.Draw.Marker(map, drawControl.options.marker).disable();
             routeDraw = true;
             markerDraw = false;
@@ -146,6 +166,8 @@
         /* button that triggers adding a marker
     */
         $("#add-point").on("click", function(){
+            $("#add-route").removeClass('icon-click');
+            $("#add-point").addClass('icon-click');
            new L.Draw.Marker(map, drawControl.options.marker).enable();
             routeDraw = false;
             markerDraw = true;
@@ -186,23 +208,33 @@
       buttons: {
         "Close": function() {
             zip = zipcode.value;
-            var name = username.value;
-            var checkedValues = dialogGlobalChecker(name, zip);
-            if (checkedValue.valid){
+            enteredUsername = username.value;
+            var checkedValues = dialogGlobalChecker(enteredUsername, zip);
+            if (checkedValues.valid){
                 zip = "'"+zip+"'";
                 enteredUsername = "'"+name+"'";
 
                 dialogGlobal.dialog("close");
             }
             else{
-                //TODO Print checkedValue.error
+                //TODO Print checkedValues.error
             }
             
         }
       },
       close: function() {
-        dialogGlobal.dialog("close");
-        console.log("Global dialog closed");
+            zip = zipcode.value;
+            enteredUsername = username.value;
+            var checkedValues = dialogGlobalChecker(enteredUsername, zip);
+            if (checkedValues.valid){
+                zip = "'"+zip+"'";
+                enteredUsername = "'"+name+"'";
+
+                dialogGlobal.dialog("close");
+            }
+            else{
+                //TODO Print checkedValues.error
+            }
       }
     });    
         
