@@ -237,6 +237,7 @@
                 //TODO Print checkedValues.error
             }
       },
+        //Hack to avoid "ENTER" leading to a new page...
         open: function(){
             $("#dialogGlobal").keydown(function(e) {
               if (e.keyCode == $.ui.keyCode.ENTER) {
