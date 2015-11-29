@@ -205,8 +205,9 @@
         at: "center center",
         of: "#map"
       },
-      buttons: {
-        "Close": function() {
+      buttons: [{
+        text: "Submit",
+          click: function() {
             zip = zipcode.value;
             enteredUsername = username.value;
             var checkedValues = dialogGlobalChecker(enteredUsername, zip);
@@ -219,9 +220,9 @@
             else{
                 //TODO Print checkedValues.error
             }
-            
-        }
-      },
+        },
+        id: "globalAccept"
+      }],
       close: function() {
             zip = zipcode.value;
             enteredUsername = username.value;
@@ -235,8 +236,15 @@
             else{
                 //TODO Print checkedValues.error
             }
-      }
-    });    
+      },
+        open: function(){
+            $("#dialogGlobal").keydown(function(e) {
+              if (e.keyCode == $.ui.keyCode.ENTER) {
+                $("#globalAccept").trigger("click");
+              }    
+            });
+        }
+    });
         
     form = dialog.find( "form" ).on( "submit", function( event ) {
       event.preventDefault();
