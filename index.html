@@ -16,6 +16,22 @@
     <link rel="stylesheet" type="text/css" href="css/tooltipster.css" />
       <link rel="stylesheet" type="text/css" href="css/tooltipster-light.css"/>
     <script type="text/javascript" src="js/jquery.tooltipster.min.js"></script>
+<!--    /ToolTipster    -->
+      
+<!--      QGIS Webmap-->
+<!--      <link rel="stylesheet" href="css/leaflet.css" />-->
+        <link rel="stylesheet" href="css/MarkerCluster.css" />
+        <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+        <link rel="stylesheet" type="text/css" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/label.css" />
+<!--
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+-->
+        <script src="js/label.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/leaflet.markercluster.js"></script>
+<!--    ToolTipster    -->    
     <script>
         $(document).ready(function() {
             $('.tooltip').tooltipster({
@@ -31,18 +47,12 @@
       <div id="header">
         <h1>Bikeways for Everybody!</h1>
       </div>
-        <p>Please add routes or intersections where you want to see protected bike infrastructure.</p>
     <div id="leftBar">
-<!--
-        <span id="add-point" class="fa-stack fa-2x icon-hover tooltip" title="Add dangerous locations to the map by clicking here.">
-            <i class="fa fa-circle fa-stack-2x"></i>
-<i class="fa fa-exclamation fa-inverse fa-stack-1x"></i>
--->
-        <div id="add-point" class="circle type1 icon-hover tooltip" title="Add dangerous locations to the map">
+
+        <div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map that you want to see improved ">
             <i class="fa fa-exclamation fa-inverse fa-3x"></i></div>
-<!--        </span>-->
         <br>
-        <div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you would like to see protected infrastructure">
+        <div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you would like to see improved infrastructure">
             <i class="fa fa-pencil fa-3x fa-inverse"></i>
         </div>
     </div>
@@ -59,9 +69,9 @@
         <fieldset style="border: none;">
           <ul style="list-style-type: none; padding-left: 0px">
             <li><label for="username">Please Enter Your First Name</label></li>
-            <li><input type="text" name="username" id="username" placeholder="Enter your name" class="text ui-widget-content ui-corner-all"></li>
+            <li><input type="text" name="username" id="username" placeholder="Enter your name" pattern="[A-Za-z]{4,}" title="Your first name must be at least 4 letters" class="text ui-widget-content ui-corner-all" required></li>
             <li><label for="zipcode">Please Enter Your Zipcode</label></li>
-            <li><input type="text" name="zipcode" maxlength="5" pattern="[0-9]{5}" id="zipcode" placeholder="02134" class="text ui-widget-content ui-corner-all"></li>
+            <li><input type="text" name="zipcode" maxlength="5" pattern="[0-9]{5}" id="zipcode" title="Please enter a 5 digit zip-code" placeholder="02134" class="text ui-widget-content ui-corner-all" required></li>
           </ul>
           <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
         </fieldset>
@@ -83,6 +93,7 @@
     <script src="https://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
     <script src="js/definitions.js"></script>
     <script src="js/directions.js"></script>
+    <script src="data/json_bikefacilities.js"></script>
     <script>
         
             //TODO: Change to your username, insert function on cartodb, and cartodb tablename
@@ -129,7 +140,6 @@
         });
         var controlOnMap = false;
         map.on('draw:created', function (e) {
-            $("#add-point").removeClass('icon-click');
             var layer = e.layer;
             map.addLayer(drawnItems);
             drawnItems.addLayer(layer);
@@ -137,20 +147,25 @@
         });
         
         function startEdits() {
-            if(drawnOnce){
-                
+            if(validInput){
+                $('#leftBar').show();
             }
             else{
-                drawnOnce = true;
                 dialogGlobal.dialog( "open" );
             }
             
-            $('#leftBar').show();
+            
         };
         
         function stopEdits() {
 //            TODO Stop all drawing
             $('#leftBar').hide();
+            if(routeDraw){
+                currentLine = null;
+            }
+            else if (markerDraw){
+                refreshLayer();
+            }
         };
         $("#add-route").on("click", function() {
             $("#add-route").addClass('icon-click');
@@ -173,26 +188,36 @@
             markerDraw = true;
         });
         
-        dialog = $( "#dialog" ).dialog({
-      autoOpen: false,
-      height: 300,
-      width: 350,
-      modal: true,
-      position: {
-        my: "center center",
-        at: "center center",
-        of: "#map"
-      },
-      buttons: {
-        "Save Information": setData,
-        Cancel: function() {
-          dialog.dialog("close");
-        }
-      },
-      close: function() {
-        form[ 0 ].reset();
-        console.log("Dialog closed");
-      }
+      dialog = $( "#dialog" ).dialog({
+          autoOpen: false,
+          height: 300,
+          width: 350,
+          modal: true,
+          position: {
+            my: "center center",
+            at: "center center",
+            of: "#map"
+        },
+          buttons: {
+            "Save Information": setData,
+            Cancel: function() {
+                if(markerDraw){
+                    refreshLayer();
+                }
+                /* Do nothing if drawing a route */
+//                else if(routeDraw){
+//                    currentLine = null;
+//                }
+                $("#add-point").removeClass('icon-click');
+                dialog.dialog("close");
+            }
+          },
+          close: function() {
+            form[ 0 ].reset();
+            $("#add-point").removeClass('icon-click');
+            
+
+          }
     });
     
     dialogGlobal = $( "#dialogGlobal" ).dialog({
@@ -216,8 +241,11 @@
                 enteredUsername = "'"+name+"'";
 
                 dialogGlobal.dialog("close");
+                $('#leftBar').show();
+                validInput = true;
             }
             else{
+                validInput = false;
                 //TODO Print checkedValues.error
             }
         },
@@ -253,34 +281,33 @@
     });
         
         function dialogGlobalChecker(name, zip) {
-            var error = "";
+            var error = [];
             var valid = true;
             if(name.length < 3) {
-                error = "Your name is too short.";
+                error.push("Your name is too short.");
                 valid = false;
             }
             if(zip.length < 5){
-                error += "Your zipcode is too short.";
+                error.push("Your zipcode is too short.");
                 valid = false;
             }
-            try{
-                var parse_zip = parseInt(zip);
-            }
-            catch (e){
-                error += "Your zipcode contains incorrect characters.";
+            if(!/(^\d{5}$)/.test(zip)){
+                error.push("Your zipcode is invalid.");
                 valid = false;
             }
             return {valid: valid, error: error};
             
         }
         
-        function setData() {
+    function setData() {
       var enteredDescription = "'"+description.value+"'";
     //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
             
       var drawing = "";
         if(routeDraw){
             drawing = "'"+JSON.stringify(currentLine.polyline.toGeoJSON().geometry)+"'";
+            routeNum ++;
+            currentLine = null;
         };
         if(markerDraw){
             drawnItems.eachLayer(function (layer) {
@@ -323,14 +350,85 @@
             console.log("Problem saving the data");
         }
       });
-
-
-    dialog.dialog("close");
-/*        Moved from endLine() in directions.js*/
-    routeNum ++;
-    currentLine = null;
+        
+        dialog.dialog("close");
     };
-      function refreshLayer() {
+      /*  QGIS layer*/
+        var layerOrder = new Array();
+        var feature_group = new L.featureGroup([]);
+        function stackLayers() {
+            for (index = 0; index < layerOrder.length; index++) {
+                map.removeLayer(layerOrder[index]);
+                map.addLayer(layerOrder[index]);
+            }
+        }
+        function restackLayers() {
+            for (index = 0; index < layerOrder.length; index++) {
+                layerOrder[index].bringToFront();
+            }
+        }
+        map.on('overlayadd', restackLayers);
+        layerControl = L.control.layers({},{},{collapsed:false});
+
+        function doStylebikefacilities(feature) {
+        if (feature.properties.BikeFacili === 1.0) {
+
+            return {
+                color: '#7fc97f',
+                weight: '3.44',
+                dashArray: '',
+                opacity: '1.0',
+            }
+        }
+        if (feature.properties.BikeFacili === 2.0) {
+
+            return {
+                color: '#beaed4',
+                weight: '3.44',
+                dashArray: '',
+                opacity: '1.0',
+            }
+        }
+        if (feature.properties.BikeFacili === 3.0) {
+
+            return {
+                color: '#fdc086',
+                weight: '3.44',
+                dashArray: '',
+                opacity: '1.0',
+            }
+        }
+        if (feature.properties.BikeFacili === 4.0) {
+
+            return {
+                color: '#ffff99',
+                weight: '3.44',
+                dashArray: '',
+                opacity: '1.0',
+            }
+        }
+        if (feature.properties.BikeFacili === 5.0) {
+
+            return {
+                color: '#386cb0',
+                weight: '3.44',
+                dashArray: '',
+                opacity: '1.0',
+            }
+        }
+        }
+            var json_bikefacilitiesJSON = new L.geoJson(json_bikefacilities, {
+                style: doStylebikefacilities
+            });
+        layerOrder[layerOrder.length] = json_bikefacilitiesJSON;
+        feature_group.addLayer(json_bikefacilitiesJSON);
+        
+       L.control.layers({},{'Bike Facilities<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Offstreet.png" /> Offstreet<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Cycletrack.png" /> Cycletrack<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Buffered.png" /> Buffered<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Bikelane.png" /> Bikelane<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Sharrow.png" /> Sharrow<br />': json_bikefacilitiesJSON},{collapsed:false}).addTo(map);
+        L.control.scale({options: {position: 'bottomleft', maxWidth: 100, metric: true, imperial: false, updateWhenIdle: false}}).addTo(map);
+        stackLayers();
+        
+        
+    function refreshLayer() {
              
       map.removeLayer(drawnItems);
       drawnItems = new L.FeatureGroup();

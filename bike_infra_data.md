@@ -72,6 +72,7 @@ WHEN "BikeFaci_1" = 4 THEN 4
 WHEN "BikeFaci_1" = 5 THEN 1
 WHEN "FacilityDe" = 94 THEN 4
 WHEN "BikeFaci_1" = 9 THEN 5
+WHEN "BikeFaci_1" = 6 THEN 5 --Holdouts, assuming Sharrows.
 END
 
 ```
