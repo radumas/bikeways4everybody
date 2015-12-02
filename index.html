@@ -121,7 +121,8 @@
             }
           }).addTo(map);
                     
-        var drawnItems = new L.FeatureGroup();
+        var drawnMarkers = new L.FeatureGroup();
+        var drawnRoute = new L.FeatureGroup();
         
         $(document).ready(function () {
             $('#leftBar').hide();
@@ -142,8 +143,8 @@
         
         map.on('draw:created', function (e) {
             var layer = e.layer;
-            map.addLayer(drawnItems);
-            drawnItems.addLayer(layer);
+            map.addLayer(drawnMarkers);
+            drawnMarkers.addLayer(layer);
             dialog.dialog( "open" );
         });
         
@@ -163,8 +164,10 @@
             $('#leftBar').hide();
             if(routeDraw){
                 currentLine = null;
+                
             }
             else if (markerDraw){
+                markerDrawer.disable();
                 refreshLayer();
             }
         };
@@ -172,10 +175,8 @@
         $("#add-route").on("click", function() {
             $("#add-route").addClass('icon-click');
             $("#add-point").removeClass('icon-click');
-            debugger
-            if(markerDrawer){
-                markerDrawer.disable();
-            }
+            markerDrawer.disable();
+            refreshLayer();
             routeDraw = true;
             markerDraw = false;
             currentLine = startNewLine(routeNum);
@@ -187,7 +188,7 @@
         $("#add-point").on("click", function(){
             $("#add-route").removeClass('icon-click');
             $("#add-point").addClass('icon-click');
-            currentLine = null;
+            refreshLayer();
             markerDrawer.enable();
             routeDraw = false;
             markerDraw = true;
@@ -316,7 +317,7 @@
             currentLine = null;
         };
         if(markerDraw){
-            drawnItems.eachLayer(function (layer) {
+            drawnMarkers.eachLayer(function (layer) {
                 //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
                 var newData = layer.toGeoJSON();
                 drawing = "'"+JSON.stringify(newData.geometry)+"'";
@@ -425,6 +426,7 @@
         }
             var json_bikefacilitiesJSON = new L.geoJson(json_bikefacilities, {
                 style: doStylebikefacilities
+                ,clickable :false
             });
         layerOrder[layerOrder.length] = json_bikefacilitiesJSON;
         feature_group.addLayer(json_bikefacilitiesJSON);
@@ -436,8 +438,13 @@
         
     function refreshLayer() {
              
-      map.removeLayer(drawnItems);
-      drawnItems = new L.FeatureGroup();
+        if(markerDraw){
+            map.removeLayer(drawnMarkers);
+            drawnMarkers = new L.FeatureGroup();
+        }else if(routeDraw){
+            map.removeLayer(drawnRoute);
+            drawnRoute = new L.FeatureGroup();
+        }
 //      if (map.hasLayer(cartoDBData)) {
 //        map.removeLayer(cartoDBData);
 //      };
