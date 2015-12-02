@@ -114,13 +114,27 @@
         
         L.control.zoom({position : 'bottomleft'}).addTo(map);
         
-            //Empty to store drawings after they are submitted
+            //Empty to store markers after they are submitted
         var submittedData = L.geoJson(false, {
             onEachFeature: function (feature, layer) {
               layer.bindPopup('<b>'+feature.properties.name +', '+ feature.properties.zipcode +'</b><br>'                               +feature.properties.description +'');
             }
           }).addTo(map);
                     
+            //Empty to store drawn routes after they are submitted
+        var submittedRoutes = new L.geoJson(false, {
+            onEachFeature: function (feature, layer) {
+              layer.bindPopup('<b>'+feature.properties.name +', '+ feature.properties.zipcode +'</b><br>'                               +feature.properties.description +'');
+            }
+            ,style: function(feature){
+                /* Styles the submitted route drawing with the same properties as the drawn route as defined by line(id)  in definitions.js */
+                        return{
+                            color:feature.properties.color,
+                            weight: feature.properties.weight,
+                            opacity: feature.properties.opacity
+                        }
+                    }
+          }).addTo(map);
         var drawnMarkers = new L.FeatureGroup();
         var drawnRoute = new L.FeatureGroup();
         
@@ -168,8 +182,9 @@
             }
             else if (markerDraw){
                 markerDrawer.disable();
-                refreshLayer();
             }
+            refreshLayer();
+            markerDraw = false; routeDraw = false;
         };
         /* button that triggers drawing a route */
         $("#add-route").on("click", function() {
@@ -180,6 +195,8 @@
             routeDraw = true;
             markerDraw = false;
             currentLine = startNewLine(routeNum);
+            map.addLayer(drawnRoute);
+            drawnRoute.addLayer(currentLine.polyline);
 //                $("#add-route").tooltipster("disable");
             map.on('click', addMarker);
         });
@@ -240,12 +257,10 @@
       buttons: [{
         text: "Submit",
           click: function() {
-            zip = zipcode.value;
-            enteredUsername = username.value;
-            var checkedValues = dialogGlobalChecker(enteredUsername, zip);
+            var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
             if (checkedValues.valid){
-                zip = "'"+zip+"'";
-                enteredUsername = "'"+name+"'";
+                zip = "'"+zipcode.value+"'";
+                enteredUsername = "'"+username.value+"'";
 
                 dialogGlobal.dialog("close");
                 $('#leftBar').show();
@@ -259,16 +274,17 @@
         id: "globalAccept"
       }],
       close: function() {
-            zip = zipcode.value;
-            enteredUsername = username.value;
-            var checkedValues = dialogGlobalChecker(enteredUsername, zip);
+            var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
             if (checkedValues.valid){
-                zip = "'"+zip+"'";
-                enteredUsername = "'"+name+"'";
+                zip = "'"+zipcode.value+"'";
+                enteredUsername = "'"+username.value+"'";
 
                 dialogGlobal.dialog("close");
+                $('#leftBar').show();
+                validInput = true;
             }
             else{
+                validInput = false;
                 //TODO Print checkedValues.error
             }
       },
@@ -312,7 +328,21 @@
             
       var drawing = "";
         if(routeDraw){
-            drawing = "'"+JSON.stringify(currentLine.polyline.toGeoJSON().geometry)+"'";
+            var submittedLine = currentLine.polyline.toGeoJSON();
+            
+            drawing = "'"+JSON.stringify(submittedLine.geometry)+"'";
+            
+            //To ensure that drawn routes remain on map after saving, with popup.
+            
+            submittedLine.properties.description = description.value;
+            submittedLine.properties.name = username.value;
+            submittedLine.properties.zipcode = zip;
+            submittedLine.properties.color = currentLine.polyline.options.color;
+            submittedLine.properties.weight = currentLine.polyline.options.weight;
+            submittedLine.properties.opacity= currentLine.polyline.options.opacity;
+            
+            submittedRoutes.addData(submittedLine);
+            
             routeNum ++;
             currentLine = null;
         };
@@ -327,11 +357,12 @@
                   newData.properties.name = username.value;
                   newData.properties.zipcode = zip;
                 submittedData.addData(newData);
-                //TODO Change this if editing is allowed
-                refreshLayer();
             });
         };
 
+        refreshLayer();
+        //Ensures that drawn routes stay on the map.
+        if(routeDraw){submittedRoutes.eachLayer( function(layer){layer.addTo(map);});};
       //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
       var sql = "SELECT "+ cartoDBinsertfunction +"(";
       sql += drawing;

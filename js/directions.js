@@ -24,7 +24,8 @@ function addMarker(evt) {
 		marker.on('dragend', function() {
 			drawRoute(currentLine);
 		});
-		marker.addTo(map);
+//		marker.addTo(map);
+        drawnRoute.addLayer(marker);
 		currentLine.waypoints.push(marker);
 		drawRoute(currentLine);
 

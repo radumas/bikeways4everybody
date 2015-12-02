@@ -16,7 +16,7 @@ function line(id) {
 	} else {
 		var lineColor = "#575757";
 	}
-	this.polyline = L.polyline([], { color:lineColor, weight: 5.5, opacity: 0.8 }).addTo(map);
+	this.polyline = L.polyline([], { color:lineColor, weight: 5.5, opacity: 0.8 });
 	this.waypoints = [];
 //	this.elePoints = null;
 //	this.elevation = null;
