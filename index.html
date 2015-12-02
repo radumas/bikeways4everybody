@@ -22,7 +22,6 @@
 <!--      <link rel="stylesheet" href="css/leaflet.css" />-->
         <link rel="stylesheet" href="css/MarkerCluster.css" />
         <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
-        <link rel="stylesheet" type="text/css" href="css/qgis2web.css">
         <link rel="stylesheet" href="css/label.css" />
 <!--
         <script src="js/leaflet.js"></script>
@@ -171,7 +170,10 @@
         $("#add-route").on("click", function() {
             $("#add-route").addClass('icon-click');
             $("#add-point").removeClass('icon-click');
-            new L.Draw.Marker(map, drawControl.options.marker).disable();
+            debugger
+            if(markerDrawer){
+                markerDrawer.disable();
+            }
             routeDraw = true;
             markerDraw = false;
             currentLine = startNewLine(routeNum);
@@ -183,7 +185,9 @@
         $("#add-point").on("click", function(){
             $("#add-route").removeClass('icon-click');
             $("#add-point").addClass('icon-click');
-           new L.Draw.Marker(map, drawControl.options.marker).enable();
+            currentLine = null;
+            markerDrawer =  new L.Draw.Marker(map, drawControl.options.marker);
+            markerDrawer.enable();
             routeDraw = false;
             markerDraw = true;
         });

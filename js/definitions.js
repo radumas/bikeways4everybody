@@ -3,6 +3,7 @@
  */
 var routeNum = 0;
 var currentLine = null;
+var markerDrawer = null;
 var routeDict = {};
 var colors = ['#4AA0D3', '#2C9359', '#9BB31C', '#4BBCA1', '#B3A81D', '#31938B', '#4AD35A', '#99C946', '#ABE345'];
 var routeDraw = false,  markerDraw = false, validInput = false;

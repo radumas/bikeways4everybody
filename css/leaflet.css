@@ -310,8 +310,7 @@
 .leaflet-control-layers label {
 	display: block;
     white-space: nowrap;
-    font-weight: bold;
-	}
+}
 .leaflet-control-layers-separator {
 	height: 0;
 	border-top: 1px solid #ddd;
