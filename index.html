@@ -167,6 +167,7 @@
                 refreshLayer();
             }
         };
+        /* button that triggers drawing a route */
         $("#add-route").on("click", function() {
             $("#add-route").addClass('icon-click');
             $("#add-point").removeClass('icon-click');
@@ -178,8 +179,7 @@
             map.on('click', addMarker);
         });
 
-        /* button that triggers adding a marker
-    */
+        /* button that triggers adding a marker */
         $("#add-point").on("click", function(){
             $("#add-route").removeClass('icon-click');
             $("#add-point").addClass('icon-click');
@@ -188,6 +188,7 @@
             markerDraw = true;
         });
         
+        /* dialog that appears after finishing a drawing */
       dialog = $( "#dialog" ).dialog({
           autoOpen: false,
           height: 300,
@@ -423,7 +424,7 @@
         layerOrder[layerOrder.length] = json_bikefacilitiesJSON;
         feature_group.addLayer(json_bikefacilitiesJSON);
         
-       L.control.layers({},{'Bike Facilities<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Offstreet.png" /> Offstreet<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Cycletrack.png" /> Cycletrack<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Buffered.png" /> Buffered<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Bikelane.png" /> Bikelane<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Sharrow.png" /> Sharrow<br />': json_bikefacilitiesJSON},{collapsed:false}).addTo(map);
+       L.control.layers({},{'<b>Bike Facilities</b><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Offstreet.png" /> Offstreet<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Cycletrack.png" /> Cycletrack<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Buffered.png" /> Buffered<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Bikelane.png" /> Bikelane<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Sharrow.png" /> Sharrow<br />': json_bikefacilitiesJSON},{collapsed:false}).addTo(map);
         L.control.scale({options: {position: 'bottomleft', maxWidth: 100, metric: true, imperial: false, updateWhenIdle: false}}).addTo(map);
         stackLayers();
         

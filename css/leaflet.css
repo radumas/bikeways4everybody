@@ -309,6 +309,8 @@
 	}
 .leaflet-control-layers label {
 	display: block;
+    white-space: nowrap;
+    font-weight: bold;
 	}
 .leaflet-control-layers-separator {
 	height: 0;

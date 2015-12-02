@@ -50,4 +50,7 @@
 .leaflet-label-left:after {
 	content: "";
 }
-
+.leaflet-control-layers label {
+	display: block;
+    white-space: nowrap;
+}
