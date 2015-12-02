@@ -33,6 +33,6 @@ function line(id) {
 }
 
 var circleIcon = L.icon({
-    iconUrl: '/img/icon2.png',
+    iconUrl: 'img/icon2.png',
     iconSize: [20, 20]
 });
