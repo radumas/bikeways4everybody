@@ -242,6 +242,17 @@
             
 
           }
+          , open: function() {
+              var _title = "Tell us about this";
+              if (markerDraw){
+                  _title += " location";
+              }
+              else if (routeDraw){
+                  _title += " route";
+              }
+              $( "#dialog" ).dialog( "option", "title",_title);
+              
+          }
     });
     
     dialogGlobal = $( "#dialogGlobal" ).dialog({
