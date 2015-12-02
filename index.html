@@ -137,7 +137,9 @@
           edit : false,
           remove: false
         });
-        var controlOnMap = false;
+        
+        markerDrawer =  new L.Draw.Marker(map, drawControl.options.marker);
+        
         map.on('draw:created', function (e) {
             var layer = e.layer;
             map.addLayer(drawnItems);
@@ -186,7 +188,6 @@
             $("#add-route").removeClass('icon-click');
             $("#add-point").addClass('icon-click');
             currentLine = null;
-            markerDrawer =  new L.Draw.Marker(map, drawControl.options.marker);
             markerDrawer.enable();
             routeDraw = false;
             markerDraw = true;
