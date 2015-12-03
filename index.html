@@ -92,24 +92,14 @@
     <script src="https://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
     <script src="js/definitions.js"></script>
     <script src="js/directions.js"></script>
-    <script src="data/json_bikefacilities.js"></script>
+    <script src="data/json_bikefacilitiesexp.js"></script>
     <script>
         
-            //TODO: Change to your username, insert function on cartodb, and cartodb tablename
-        var cartoDBusername = "raphaeld";
-        var cartoDBinsertfunction = "insert_bikeways_data";
-        var zip= 0, enteredUsername ="";
 
-        
-        //Set Map Bounds
-        var southWest = L.latLng(42.24, -71.192),
-        northEast = L.latLng(42.42, -70.986),
-        bounds = L.latLngBounds(southWest, northEast);
-        
         L.mapbox.accessToken =                         
             'pk.eyJ1IjoicmVtb3RlZ2VudHJpZnkiLCJhIjoiY2lnanJzMjJpMDA1dnYxbHo5MTZtdGZsYSJ9.gLE8d40zmDAtMSSZyd2h1Q';
 // Create a map in the div #map
-        var map = L.mapbox.map('map', 'remotegentrify.cigjrs0xw0078u1kr4vn4g6wg',{ center: [42.381899, -71.122499],
+        var map = L.mapbox.map('map', 'remotegentrify.cigjrs0xw0078u1kr4vn4g6wg',{ center: mapFocus,
             zoom: 13, minZoom : 13, maxBounds : bounds, zoomControl :false });
         
         L.control.zoom({position : 'bottomleft'}).addTo(map);
@@ -466,7 +456,7 @@
                     }
                 }
         }
-            var json_bikefacilitiesJSON = new L.geoJson(json_bikefacilities, {
+            var json_bikefacilitiesJSON = new L.geoJson(json_bikefacilitiesexp, {
                 style: doStylebikefacilities
                 ,clickable :false
             });
