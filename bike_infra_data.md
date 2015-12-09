@@ -80,4 +80,12 @@ END
 Since the Boston & Cambridge layers are more recent than the MAPC one, they should take precedence when infrastructure overlaps. I created a 5m buffer around the Boston & Cambridge layers separately, and then selected lines on the MAPC layer which were within these buffers. After inverting the selection, I saved only the lines that were not duplicated in those two layers.
 
 ### Combining
-After putting 
+I made sure the bike facility classification column had the **same name** in the three different layers, then I put all three shapefiles in the same folder. I used `Vector > Data Management Tools > Merge Shapefiles to One...` to merge the three files. I then deleted extraneous columns and ran `Simplify` with default tolerance to shrink the files. Then in order to make it easy to add the layer and its legend to the webmap, I used the `qgis2web` plugin with Leaflet mode, with the following options:  
+ - no popup
+ - minify GeoJSON
+ - precision: 5
+ - add layers list
+ - match project CRS
+ 
+Then I exported it, and copied the exported data `.js` file to the project's `data` folder as well as a number of other `.css` and `.js` files:  
+ - 
