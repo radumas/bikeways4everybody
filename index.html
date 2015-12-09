@@ -488,6 +488,62 @@
 //      };
 //      getGeoJSON();
     };
+        
+        
+        /* Impromptu dialogs */
+        var tourSubmitFunc = function(e,v,m,f){
+			if(v === -1){
+				$.prompt.prevState();
+				return false;
+			}
+			else if(v === 1){
+				$.prompt.nextState();
+				return false;
+			}
+            else if(v === 0){
+                $.prompt.close();
+                return false;
+            }
+        },
+        tourStates = [
+	       {
+                title: "Welcome",
+               html: "<p>This webmap allows you to view data collected by the Boston Cyclists Union on biking in Boston.</p><p>It also allows you to submit input on where biking infrastructure can be improved by drawing on the map!</p>",
+               buttons:{'Tell me more!':1, 'I already know':0},
+               focus: 0,
+               submit: tourSubmitFunc
+	       },
+            {
+                title:"Data Layers",
+                html:"Here you have the legend for the datalayers, you can toggle each layer by clicking on the check    mark",
+                buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
+                focus:2,
+                position: { container: '.leaflet-control-layers-expanded', x: -330, y: 0, width: 300, arrow: 'rt' },
+                submit:tourSubmitFunc
+            },
+            {
+                title:"Enable Drawing",
+                html:"Click here and then give us your first name and zipcode.<br> Then you'll enable the drawing options ",
+                buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
+                focus:2,
+                submit:tourSubmitFunc
+            },
+            {
+                title:"Drop a Marker",
+                html:"By clicking here you'll ",
+                buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
+                focus:2,
+                submit:tourSubmitFunc
+            },
+            {
+                title:"Or Draw a Route and Then Tell Us About It",
+                html:"By clicking here you'll ",
+                buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
+                focus:2,
+                submit:tourSubmitFunc
+            }
+         ];
+        $.prompt(tourStates);
             
     </script>
   </body>
