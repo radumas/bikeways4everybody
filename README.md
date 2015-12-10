@@ -24,7 +24,8 @@ Have a map. That people can draw lines representing the bike routes they would l
 3. ~~Make username & zipcode global variables entered when editing begins and ensure integrity of zipcode value.~~
 3. ~~Add the MapBox directions functionality~~ (in directions branch)
 4. ~~Add big buttons like veloroute, enable leaflet.draw as per [this](https://stackoverflow.com/questions/15775103/leaflet-draw-mapping-how-to-initiate-the-draw-function-without-toolbar)~~
-5. Ensure form input is more valid.
+5. ~~Ensure form input is more valid.~~
 4. Add pop-up instructions (.GIFs like [the mapping neighborhoods project](http://maps.graphicarto.com/twincityhoods/), would be a good idea)  and an about section and otherwise styling the front-end. Possibly using [Joyride](http://zurb.com/playground/jquery-joyride-feature-tour-plugin)
+5. Add tooltip on first added marker when drawing route to suggest double clicking, like [this](http://stackoverflow.com/a/15163105/4047679) with {tracking:true, duration:x}
 5. Test
 6. Publish
