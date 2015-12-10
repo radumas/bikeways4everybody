@@ -509,8 +509,8 @@
 	       {
                 title: "Welcome",
                html: "<p>This webmap allows you to view data collected by the Boston Cyclists Union on biking in Boston.</p><p>It also allows you to submit input on where biking infrastructure can be improved by drawing on the map!</p>",
-               buttons:{'Tell me more!':1, 'I already know':0},
-               focus: 0,
+               buttons:{'I already know':0,'How do I use this?':1},
+               focus: 1,
                submit: tourSubmitFunc
 	       },
             {
@@ -523,23 +523,26 @@
             },
             {
                 title:"Enable Drawing",
-                html:"Click here and then give us your first name and zipcode.<br> Then you'll enable the drawing options ",
+                html:"Click here and then give us your first name and zipcode.<br> Then you'll enable the drawing tools and add your input to the map!",
                 buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
+                position: { container: '#controls', x: 90, y: -200, width: 300, arrow: 'bl' },
                 focus:2,
                 submit:tourSubmitFunc
             },
             {
-                title:"Drop a Marker",
-                html:"By clicking here you'll ",
+                title:"Click on <i class='fa fa-exclamation'></i> and Place a Marker on the Map",
+                html:"<div class = 'img-container'><img src='img/add_marker.gif'></img></div><br>When you click 'Save Input' your marker and description are sent to our database.",
                 buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
+                position:{width:500},
                 focus:2,
                 submit:tourSubmitFunc
             },
             {
-                title:"Or Draw a Route and Then Tell Us About It",
-                html:"By clicking here you'll ",
-                buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
-                focus:2,
+                title:"Or Click on <i class='fa fa-pencil'></i> to Draw a Route",
+                html:"<div class = 'img-container'><img src='img/draw_route.gif'></img></div><br>Double click on the final point to end the route.",
+                buttons:{'Go back':-1,'I\'m ready!':0},
+                position:{width:500},
+                focus:1,
                 submit:tourSubmitFunc
             }
          ];

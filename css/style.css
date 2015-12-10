@@ -104,3 +104,8 @@ h1 {
   text-align: right;
   line-height: 16px;
 }
+
+.img-container{
+  text-align: center;
+/*  margin-bottom: 15px;*/
+}
