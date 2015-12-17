@@ -33,11 +33,16 @@
 <!--    ToolTipster    -->    
     <script>
         $(document).ready(function() {
-            $('.tooltip').tooltipster({
+            $('.leftbar-tooltip').tooltipster({
                 theme: 'tooltipster-light',
-                position:'right'
+                position:'right',
+                delay: 10
             });
 
+//        $('#map').tooltip({
+//            content: "This is the fucking map",
+//            tracking: false
+//        });
         });
     </script>
   </head>
@@ -46,24 +51,23 @@
       <div id="header">
         <h1>Bikeways for Everybody!</h1>
       </div>
-    <div id="leftBar">
+        <div id="leftBar">
 
-        <div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map that you want to see improved ">
-            <i class="fa fa-exclamation fa-inverse fa-3x"></i></div>
-        <br>
-        <div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you would like to see improved infrastructure">
-            <i class="fa fa-pencil fa-3x fa-inverse"></i>
+            <div id="add-point" class="circle type1 icon-hover leftbar-tooltip" title="Add points to the map that you want to see improved ">
+                <i class="fa fa-exclamation fa-inverse fa-3x"></i></div>
+            <br>
+            <div id="add-route" class="circle type1 icon-hover leftbar-tooltip" title="Draw routes on the map where you would like to see improved infrastructure">
+                <i class="fa fa-pencil fa-3x fa-inverse"></i>
+            </div>
         </div>
-    </div>
     
-    <div id="map"></div>
+    <div id="map" title="This is the map"></div>
     
       <div id="controls">
         <input type="button" onclick="startEdits()" value="Click to Start Drawing">
         <input type="button" onclick="stopEdits()" value="Click to Stop Drawing"><br>
       </div>
-    </div>
-    <div id="dialogGlobal" title="About You">     
+        <div id="dialogGlobal" title="About You">     
       <form>
         <fieldset style="border: none;">
           <ul style="list-style-type: none; padding-left: 0px">
@@ -88,6 +92,10 @@
         </fieldset>
       </form>
     </div>
+    </div>
+    
+      
+<!--    <div id="draw-tooltip" class="hidden" title="Click to add waypoints to your route" />-->
 
     <script src="https://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
     <script src="js/definitions.js"></script>
@@ -151,6 +159,7 @@
             drawnMarkers.addLayer(layer);
             dialog.dialog( "open" );
         });
+        
         
         function startEdits() {
             if(validInput){
