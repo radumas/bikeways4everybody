@@ -5,6 +5,7 @@
     <meta charset=utf-8 />
     <title>Bikeways for Everybody!</title>
     <script src="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js"></script>
+<!--Apparently not used-->
     <link rel="stylesheet" href="https://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css"  />
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
@@ -12,34 +13,25 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-<!--    ToolTipster    -->
-    <link rel="stylesheet" type="text/css" href="css/tooltipster.css" />
-      <link rel="stylesheet" type="text/css" href="css/tooltipster-light.css"/>
-    <script type="text/javascript" src="js/jquery.tooltipster.min.js"></script>
-<!--    /ToolTipster    -->
-      
-<!--      QGIS Webmap-->
-<!--      <link rel="stylesheet" href="css/leaflet.css" />-->
-        <link rel="stylesheet" href="css/MarkerCluster.css" />
-        <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
-        <link rel="stylesheet" href="css/label.css" />
-<!--
-        <script src="js/leaflet.js"></script>
-        <script src="js/leaflet-hash.js"></script>
--->
+
         <script src="js/label.js"></script>
         <script src="js/Autolinker.min.js"></script>
         <script src="js/leaflet.markercluster.js"></script>
-<!--    ToolTipster    -->    
-    <script>
-        $(document).ready(function() {
-            $('.tooltip').tooltipster({
-                theme: 'tooltipster-light',
-                position:'right'
-            });
-
-        });
-    </script>
+      
+  <script>
+  $(function() {
+    $( "#map" ).tooltip({
+        track: true,
+        content: function( callback ) {
+            if ( tooltipstate === 1 ) {
+              callback( "Click to add a waypoint to your route" );
+            } else if( tooltipstate === 2) {
+              callback( "Double click to finish your route");
+            }
+        } 
+    });
+  });
+  </script>
   </head>
   <body>
     <div id="wrapper">
@@ -56,7 +48,7 @@
         </div>
     </div>
     
-    <div id="map"></div>
+    <div id="map" title=""></div>
     
       <div id="controls">
         <input type="button" onclick="startEdits()" value="Click to Start Drawing">
@@ -155,6 +147,7 @@
         function startEdits() {
             if(validInput){
                 $('#leftBar').show();
+            
             }
             else{
                 dialogGlobal.dialog( "open" );
@@ -189,7 +182,6 @@
             currentLine = startNewLine(routeNum);
             map.addLayer(drawnRoute);
             drawnRoute.addLayer(currentLine.polyline);
-//                $("#add-route").tooltipster("disable");
             map.on('click', addMarker);
         });
 
@@ -479,6 +471,7 @@
         }else if(routeDraw){
             map.removeLayer(drawnRoute);
             drawnRoute = new L.FeatureGroup();
+            $( "#map").tooltip( "close" );
         }
 //      if (map.hasLayer(cartoDBData)) {
 //        map.removeLayer(cartoDBData);
