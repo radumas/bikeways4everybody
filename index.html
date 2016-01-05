@@ -6,7 +6,7 @@
     <title>Bikeways for Everybody!</title>
     <script src="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js"></script>
 <!--Apparently not used-->
-      <!--    <link rel="stylesheet" href="https://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />-->
+    <link rel="stylesheet" href="https://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css"  />
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -17,9 +17,24 @@
         <script src="js/label.js"></script>
         <script src="js/Autolinker.min.js"></script>
         <script src="js/leaflet.markercluster.js"></script>
+      
+  <script>
+  $(function() {
+    $( "#map" ).tooltip({
+      track: true,
+        content: function( callback ) {
+            if ( tooltipstate === 1 ) {
+              callback( "Click to add a waypoint to your route" );
+            } else if( tooltipstate === 2) {
+              callback( "Double click to finish your route");
+            }
+      }
+    });
+  });
+  </script>
   </head>
   <body>
-    <div id="wrapper">2
+    <div id="wrapper">
       <div id="header">
         <h1>Bikeways for Everybody!</h1>
       </div>
@@ -33,7 +48,7 @@
         </div>
     </div>
     
-    <div id="map"></div>
+    <div id="map" title=""></div>
     
       <div id="controls">
         <input type="button" onclick="startEdits()" value="Click to Start Drawing">
@@ -132,6 +147,7 @@
         function startEdits() {
             if(validInput){
                 $('#leftBar').show();
+            
             }
             else{
                 dialogGlobal.dialog( "open" );
@@ -458,6 +474,7 @@
         }else if(routeDraw){
             map.removeLayer(drawnRoute);
             drawnRoute = new L.FeatureGroup();
+            $( "#map").tooltip( "close" );
         }
 //      if (map.hasLayer(cartoDBData)) {
 //        map.removeLayer(cartoDBData);
