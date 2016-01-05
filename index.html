@@ -21,14 +21,14 @@
   <script>
   $(function() {
     $( "#map" ).tooltip({
-      track: true,
+        track: true,
         content: function( callback ) {
             if ( tooltipstate === 1 ) {
               callback( "Click to add a waypoint to your route" );
             } else if( tooltipstate === 2) {
               callback( "Double click to finish your route");
             }
-      }
+        } 
     });
   });
   </script>
