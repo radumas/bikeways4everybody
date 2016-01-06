@@ -29,15 +29,28 @@ img {
 }
 
 #leftBar {
+	margin: 10px;
+/*
     left: 10px;
     position: absolute;
     z-index: 1000;
     top: 20%;
     padding: 5px;
+*/
 }
 
 
 #add-route {
+    display:inline-block;
+    cursor: pointer;
+}
+
+#add-point {
+    display:inline-block;
+    cursor: pointer;
+}
+
+#about {
     display:inline-block;
     cursor: pointer;
 }
@@ -50,10 +63,6 @@ img {
     background: #3585a3;
 }
 
-#add-point {
-    display:inline-block;
-    cursor: pointer;
-}
 
 p {
   font-size: 15px;
