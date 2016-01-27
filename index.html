@@ -65,15 +65,16 @@
        	<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">
             <i class="fa fa-info fa-3x fa-inverse"></i>
 		</div>
+		<br>
+			
+       	<div id="cancel" class="circle type1 icon-hover tooltip" title="Learn more">
+            <i class="fa fa-times fa-3x fa-inverse"></i>
+		</div>
+		
     </div>
     
     <div id="map"></div>
     
-      <div id="controls">
-        <input type="button" onclick="startEdits()" value="Click to Start Drawing">
-        <input type="button" onclick="stopEdits()" value="Click to Stop Drawing"><br>
-      </div>
-    </div>
     <div id="dialogGlobal" title="About You">     
       <form>
         <fieldset style="border: none;">
@@ -139,9 +140,9 @@
         var drawnMarkers = new L.FeatureGroup();
         var drawnRoute = new L.FeatureGroup();
         
-        $(document).ready(function () {
-            $('#leftBar').hide();
-        });
+//        $(document).ready(function () {
+//
+//		});
         
         var drawControl = new L.Control.Draw({
           draw : {
@@ -161,23 +162,51 @@
             map.addLayer(drawnMarkers);
             drawnMarkers.addLayer(layer);
             dialog.dialog( "open" );
-        });
+        });        
         
-        function startEdits() {
+		 	/*#left-bar buttons*/ 
+        /* button that triggers drawing a route */
+        $("#add-route").on("click", function() {
+            if(validInput===false){
+				dialogGlobal.dialog( "open" );
+            	
+            }
             if(validInput){
-                $('#leftBar').show();
+                $("#add-route").addClass('icon-click');
+				$("#add-point").removeClass('icon-click');
+				markerDrawer.disable();
+				refreshLayer();
+				routeDraw = true;
+				markerDraw = false;
+				currentLine = startNewLine(routeNum);
+				map.addLayer(drawnRoute);
+				drawnRoute.addLayer(currentLine.polyline);
+	//          $("#add-route").tooltipster("disable");
+				map.on('click', addMarker);
+            }			
+        });
+
+        /* button that triggers adding a marker */
+        $("#add-point").on("click", function(){
+			if(validInput===false){
+				dialogGlobal.dialog( "open" );           	
             }
-            else{
-                dialogGlobal.dialog( "open" );
-            }
-            
-            
-        };
-        
-        function stopEdits() {
-//            TODO Stop all drawing
-            $('#leftBar').hide();
-            if(routeDraw){
+            if(validInput){
+				$("#add-route").removeClass('icon-click');
+				$("#add-point").addClass('icon-click');
+				refreshLayer();
+				markerDrawer.enable();
+				routeDraw = false;
+				markerDraw = true;
+			}
+        });
+		
+		$("#about").on("click", function(){
+		     $.prompt(tourStates);
+		});
+		
+		$("#cancel").on("click", function(){
+		    if(routeDraw){
                 currentLine = null;
                 
             }
@@ -186,37 +215,7 @@
             }
             refreshLayer();
             markerDraw = false; routeDraw = false;
-        };
-		 	/*#left-bar buttons*/ 
-        /* button that triggers drawing a route */
-        $("#add-route").on("click", function() {
-            $("#add-route").addClass('icon-click');
-            $("#add-point").removeClass('icon-click');
-            markerDrawer.disable();
-            refreshLayer();
-            routeDraw = true;
-            markerDraw = false;
-            currentLine = startNewLine(routeNum);
-            map.addLayer(drawnRoute);
-            drawnRoute.addLayer(currentLine.polyline);
-//                $("#add-route").tooltipster("disable");
-            map.on('click', addMarker);
-        });
-
-        /* button that triggers adding a marker */
-        $("#add-point").on("click", function(){
-            $("#add-route").removeClass('icon-click');
-            $("#add-point").addClass('icon-click');
-            refreshLayer();
-            markerDrawer.enable();
-            routeDraw = false;
-            markerDraw = true;
-        });
-		
-		$("#add-point").on("click", function(){
-		     $.prompt(tourStates);
 		});
-		
 		/*End #left-bar buttons*/
         
         /* dialog that appears after finishing a drawing */
@@ -231,7 +230,7 @@
             of: "#map"
         },
           buttons: {
-            "Save Information": setData,
+            "Save Input": setData,
             Cancel: function() {
                 if(markerDraw){
                     refreshLayer();
@@ -535,9 +534,9 @@
             },
             {
                 title:"Enable Drawing",
-                html:"Click here and then give us your first name and zipcode.<br> Then you'll enable the drawing tools and add your input to the map!",
+                html:"Click on either <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-exclamation fa-inverse fa-stack-1x'></i></span> or <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-pencil fa-inverse fa-stack-1x'></i></span> to start giving your input. First we'll want you to enter your first name and zipcode.<br> After that you'll be able to add your input to the map!",
                 buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
-                position: { container: '#controls', x: 90, y: -200, width: 300, arrow: 'bl' },
+                position: { container: '#leftBar', x: 90, y: 0, width: 300, arrow: 'lt' },
                 focus:2,
                 submit:tourSubmitFunc
             },

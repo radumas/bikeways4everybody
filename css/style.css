@@ -32,7 +32,9 @@ img {
     left: 10px;
     position: absolute;
     z-index: 1000;
-    top: 20%;
+    top: 60px;
+	margin-top: 10px;
+	padding-top: 0px;
     padding: 5px;
 }
 
@@ -46,6 +48,12 @@ img {
     display:inline-block;
     cursor: pointer;
 }
+
+#cancel {
+    display:inline-block;
+    cursor: pointer;
+}
+
 
 .icon-hover:hover {
     background: aqua;
