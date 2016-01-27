@@ -42,6 +42,11 @@ img {
     cursor: pointer;
 }
 
+#about {
+    display:inline-block;
+    cursor: pointer;
+}
+
 .icon-hover:hover {
     background: aqua;
 }

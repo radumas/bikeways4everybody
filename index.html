@@ -60,6 +60,11 @@
         <div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you would like to see improved infrastructure">
             <i class="fa fa-pencil fa-3x fa-inverse"></i>
         </div>
+		<br>
+			
+       	<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">
+            <i class="fa fa-info fa-3x fa-inverse"></i>
+		</div>
     </div>
     
     <div id="map"></div>
@@ -182,6 +187,7 @@
             refreshLayer();
             markerDraw = false; routeDraw = false;
         };
+		 	/*#left-bar buttons*/ 
         /* button that triggers drawing a route */
         $("#add-route").on("click", function() {
             $("#add-route").addClass('icon-click');
@@ -206,6 +212,12 @@
             routeDraw = false;
             markerDraw = true;
         });
+		
+		$("#add-point").on("click", function(){
+		     $.prompt(tourStates);
+		});
+		
+		/*End #left-bar buttons*/
         
         /* dialog that appears after finishing a drawing */
       dialog = $( "#dialog" ).dialog({
