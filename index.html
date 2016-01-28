@@ -6,7 +6,8 @@
     <title>Bikeways for Everybody!</title>
     <script src="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js"></script>
 <!--Apparently not used-->
-    <link rel="stylesheet" href="https://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />
+<!--    <link rel="stylesheet" href="https://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />-->
+    <link rel="stylesheet" type="text/css" href="css/leaflet.draw.css" />
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css"  />
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -14,9 +15,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
-        <script src="js/label.js"></script>
-        <script src="js/Autolinker.min.js"></script>
-        <script src="js/leaflet.markercluster.js"></script>
+    <script src="js/label.js"></script>
+    <script src="js/Autolinker.min.js"></script>
+    <script src="js/leaflet.markercluster.js"></script>
       
   <script>
   $(function() {
@@ -28,7 +29,9 @@
             } else if( tooltipstate === 2) {
               callback( "Double click to finish your route");
             }
-        } 
+        },
+		tooltipClass: "leaflet-draw-tooltip leaflet-draw-tooltip-single j-leaflet-draw-tooltip",
+		position: { my: "left+20 center", at: "right center"}
     });
   });
   </script>

@@ -15,7 +15,7 @@ function startNewLine(rNum) {
      //Resets tooltip to null
      tooltipstate = 0;
      $( "#map").tooltip( "close" );
-    dialog.dialog( "open" );
+     dialog.dialog( "open" );
     
  }
 /* Adds a marker to the current route 
