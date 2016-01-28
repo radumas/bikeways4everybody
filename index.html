@@ -159,35 +159,7 @@
             dialog.dialog( "open" );
         });        
         
-<<<<<<< HEAD
 		 	/*#left-bar buttons*/ 
-        /* button that triggers drawing a route */
-        $("#add-route").on("click", function() {
-            if(validInput===false){
-				dialogGlobal.dialog( "open" );
-            	
-=======
-        function startEdits() {
-            if(validInput){
-                $('#leftBar').show();
-            
->>>>>>> gh-pages
-            }
-            if(validInput){
-                $("#add-route").addClass('icon-click');
-				$("#add-point").removeClass('icon-click');
-				markerDrawer.disable();
-				refreshLayer();
-				routeDraw = true;
-				markerDraw = false;
-				currentLine = startNewLine(routeNum);
-				map.addLayer(drawnRoute);
-				drawnRoute.addLayer(currentLine.polyline);
-	//          $("#add-route").tooltipster("disable");
-				map.on('click', addMarker);
-            }			
-        });
-
         /* button that triggers adding a marker */
         $("#add-point").on("click", function(){
 			if(validInput===false){
@@ -203,6 +175,27 @@
 			}
         });
 		
+		/* button that triggers drawing a route */
+        $("#add-route").on("click", function() {
+            if(validInput===false){
+				dialogGlobal.dialog( "open" );
+            if(validInput){
+                $("#add-route").addClass('icon-click');
+				$("#add-point").removeClass('icon-click');
+				markerDrawer.disable();
+				refreshLayer();
+				routeDraw = true;
+				markerDraw = false;
+				currentLine = startNewLine(routeNum);
+				map.addLayer(drawnRoute);
+				drawnRoute.addLayer(currentLine.polyline);
+	//          $("#add-route").tooltipster("disable");
+				map.on('click', addMarker);
+            }			
+        });
+
+
+		/*Button that triggers the initial walkthrough again*/
 		$("#about").on("click", function(){
 		     $.prompt(tourStates);
 		});
@@ -219,35 +212,8 @@
             $("#add-route").removeClass('icon-click');
             $("#add-point").removeClass('icon-click');
             markerDraw = false; routeDraw = false;
-<<<<<<< HEAD
 		});
 		/*End #left-bar buttons*/
-=======
-        };
-        /* button that triggers drawing a route */
-        $("#add-route").on("click", function() {
-            $("#add-route").addClass('icon-click');
-            $("#add-point").removeClass('icon-click');
-            markerDrawer.disable();
-            refreshLayer();
-            routeDraw = true;
-            markerDraw = false;
-            currentLine = startNewLine(routeNum);
-            map.addLayer(drawnRoute);
-            drawnRoute.addLayer(currentLine.polyline);
-            map.on('click', addMarker);
-        });
-
-        /* button that triggers adding a marker */
-        $("#add-point").on("click", function(){
-            $("#add-route").removeClass('icon-click');
-            $("#add-point").addClass('icon-click');
-            refreshLayer();
-            markerDrawer.enable();
-            routeDraw = false;
-            markerDraw = true;
-        });
->>>>>>> gh-pages
         
         /* dialog that appears after finishing a drawing */
       dialog = $( "#dialog" ).dialog({
