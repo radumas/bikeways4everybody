@@ -1,0 +1,3 @@
+[submodule "jQuery-Impromptu"]
+	path = jQuery-Impromptu
+	url = https://github.com/trentrichardson/jQuery-Impromptu.git

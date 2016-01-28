@@ -5,20 +5,26 @@
     <meta charset=utf-8 />
     <title>Bikeways for Everybody!</title>
     <script src="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js"></script>
-<!--Apparently not used-->
-<!--    <link rel="stylesheet" href="https://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />-->
     <link rel="stylesheet" type="text/css" href="css/leaflet.draw.css" />
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css"  />
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-
-    <script src="js/label.js"></script>
-    <script src="js/Autolinker.min.js"></script>
-    <script src="js/leaflet.markercluster.js"></script>
-      
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script> 
+<!--      QGIS Webmap-->
+<!--      <link rel="stylesheet" href="css/leaflet.css" />-->
+        <link rel="stylesheet" href="css/MarkerCluster.css" />
+        <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+        <link rel="stylesheet" href="css/label.css" />
+        <script src="js/label.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/leaflet.markercluster.js"></script>
+<!--      /QGIS Webmap-->      
+<!--      Impromptu (for walkthrough)-->
+<link rel="stylesheet" href="jQuery-Impromptu/dist/jquery-impromptu.min.css" />
+<script src="jQuery-Impromptu/dist/jquery-impromptu.min.js"></script>
+<!--      /Impromptu                 -->      
   <script>
   $(function() {
     $( "#map" ).tooltip({
@@ -49,15 +55,21 @@
         <div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you would like to see improved infrastructure">
             <i class="fa fa-pencil fa-3x fa-inverse"></i>
         </div>
+		<br>
+			
+       	<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">
+            <i class="fa fa-info fa-3x fa-inverse"></i>
+		</div>
+		<br>
+			
+       	<div id="cancel" class="circle type1 icon-hover tooltip" title="Learn more">
+            <i class="fa fa-times fa-3x fa-inverse"></i>
+		</div>
+		
     </div>
     
     <div id="map" title=""></div>
     
-      <div id="controls">
-        <input type="button" onclick="startEdits()" value="Click to Start Drawing">
-        <input type="button" onclick="stopEdits()" value="Click to Stop Drawing"><br>
-      </div>
-    </div>
     <div id="dialogGlobal" title="About You">     
       <form>
         <fieldset style="border: none;">
@@ -123,9 +135,9 @@
         var drawnMarkers = new L.FeatureGroup();
         var drawnRoute = new L.FeatureGroup();
         
-        $(document).ready(function () {
-            $('#leftBar').hide();
-        });
+//        $(document).ready(function () {
+//
+//		});
         
         var drawControl = new L.Control.Draw({
           draw : {
@@ -145,24 +157,58 @@
             map.addLayer(drawnMarkers);
             drawnMarkers.addLayer(layer);
             dialog.dialog( "open" );
-        });
+        });        
         
+<<<<<<< HEAD
+		 	/*#left-bar buttons*/ 
+        /* button that triggers drawing a route */
+        $("#add-route").on("click", function() {
+            if(validInput===false){
+				dialogGlobal.dialog( "open" );
+            	
+=======
         function startEdits() {
             if(validInput){
                 $('#leftBar').show();
             
+>>>>>>> gh-pages
             }
-            else{
-                dialogGlobal.dialog( "open" );
+            if(validInput){
+                $("#add-route").addClass('icon-click');
+				$("#add-point").removeClass('icon-click');
+				markerDrawer.disable();
+				refreshLayer();
+				routeDraw = true;
+				markerDraw = false;
+				currentLine = startNewLine(routeNum);
+				map.addLayer(drawnRoute);
+				drawnRoute.addLayer(currentLine.polyline);
+	//          $("#add-route").tooltipster("disable");
+				map.on('click', addMarker);
+            }			
+        });
+
+        /* button that triggers adding a marker */
+        $("#add-point").on("click", function(){
+			if(validInput===false){
+				dialogGlobal.dialog( "open" );           	
             }
-            
-            
-        };
-        
-        function stopEdits() {
-//            TODO Stop all drawing
-            $('#leftBar').hide();
-            if(routeDraw){
+            if(validInput){
+				$("#add-route").removeClass('icon-click');
+				$("#add-point").addClass('icon-click');
+				refreshLayer();
+				markerDrawer.enable();
+				routeDraw = false;
+				markerDraw = true;
+			}
+        });
+		
+		$("#about").on("click", function(){
+		     $.prompt(tourStates);
+		});
+		
+		$("#cancel").on("click", function(){
+		    if(routeDraw){
                 currentLine = null;
                 
             }
@@ -173,6 +219,10 @@
             $("#add-route").removeClass('icon-click');
             $("#add-point").removeClass('icon-click');
             markerDraw = false; routeDraw = false;
+<<<<<<< HEAD
+		});
+		/*End #left-bar buttons*/
+=======
         };
         /* button that triggers drawing a route */
         $("#add-route").on("click", function() {
@@ -197,6 +247,7 @@
             routeDraw = false;
             markerDraw = true;
         });
+>>>>>>> gh-pages
         
         /* dialog that appears after finishing a drawing */
       dialog = $( "#dialog" ).dialog({
@@ -210,7 +261,7 @@
             of: "#map"
         },
           buttons: {
-            "Save Information": setData,
+            "Save Input": setData,
             Cancel: function() {
                 if(markerDraw){
                     refreshLayer();
@@ -481,6 +532,65 @@
 //      };
 //      getGeoJSON();
     };
+        
+        
+        /* Impromptu dialogs */
+        var tourSubmitFunc = function(e,v,m,f){
+			if(v === -1){
+				$.prompt.prevState();
+				return false;
+			}
+			else if(v === 1){
+				$.prompt.nextState();
+				return false;
+			}
+            else if(v === 0){
+                $.prompt.close();
+                return false;
+            }
+        },
+        tourStates = [
+	       {
+                title: "Welcome",
+               html: "<p>This webmap allows you to view data collected by the Boston Cyclists Union on biking in Boston.</p><p>It also allows you to submit input on where biking infrastructure can be improved by drawing on the map!</p>",
+               buttons:{'I already know':0,'How do I use this?':1},
+               focus: 1,
+               submit: tourSubmitFunc
+	       },
+            {
+                title:"Data Layers",
+                html:"Here you have the legend for the datalayers, you can toggle each layer by clicking on the check    mark",
+                buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
+                focus:2,
+                position: { container: '.leaflet-control-layers-expanded', x: -330, y: 0, width: 300, arrow: 'rt' },
+                submit:tourSubmitFunc
+            },
+            {
+                title:"Enable Drawing",
+                html:"Click on either <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-exclamation fa-inverse fa-stack-1x'></i></span> or <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-pencil fa-inverse fa-stack-1x'></i></span> to start giving your input. First we'll want you to enter your first name and zipcode.<br> After that you'll be able to add your input to the map!",
+                buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
+                position: { container: '#leftBar', x: 90, y: 0, width: 300, arrow: 'lt' },
+                focus:2,
+                submit:tourSubmitFunc
+            },
+            {
+                title:"Click on <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-exclamation fa-inverse fa-stack-1x'></i></span> and Place a Marker on the Map",
+                html:"<div class = 'img-container'><img src='img/add_marker.gif'></img></div><br>Tell us about dangerous intersections, potholes, etc. When you click 'Save Input' your marker and description are sent to our database.",
+                buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
+                position:{width:500},
+                focus:2,
+                submit:tourSubmitFunc
+            },
+            {
+                title:"Or Click on <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-pencil fa-inverse fa-stack-1x'></i></span> to Draw a Route",
+                html:"<div class = 'img-container'><img src='img/draw_route.gif'></img></div><br>Routes can indicate your entire commute, or small locations where bike lanes are missing, or frequently blocked... Click to add points to form a route. Double click on the final point to end that route, and then write a description.",
+                buttons:{'Go back':-1,'I\'m ready!':0},
+                position:{width:500},
+                focus:1,
+                submit:tourSubmitFunc
+            }
+         ];
+        $.prompt(tourStates);
             
     </script>
   </body>
