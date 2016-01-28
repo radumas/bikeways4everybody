@@ -102,3 +102,7 @@ h1 {
   text-align: right;
   line-height: 16px;
 }
+
+.j-leaflet-draw-tooltip{
+	visibility: visible;
+}
