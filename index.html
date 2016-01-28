@@ -7,6 +7,11 @@
     <script src="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js"></script>
     <link rel="stylesheet" type="text/css" href="css/leaflet.draw.css" />
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css"  />
+      
+<!--    Mapzen geocoding-->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-geocoder-mapzen/1.4.1/leaflet-geocoder-mapzen.css">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-geocoder-mapzen/1.4.1/leaflet-geocoder-mapzen.js"></script>
+<!--    /Mapzen geocoding-->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
@@ -110,6 +115,15 @@
             zoom: 13, minZoom : 13, maxBounds : bounds, zoomControl :false });
         
         L.control.zoom({position : 'bottomleft'}).addTo(map);
+        
+        
+        L.control.geocoder('search-Z23GopM', {
+            bounds: bounds,
+            position: 'bottomright',
+            markers: false,
+            expanded: true  
+        }).addTo(map);
+        
         
             //Empty to store markers after they are submitted
         var submittedData = L.geoJson(false, {
