@@ -1,6 +1,7 @@
 var tooltipstate = 0;
 
 function startNewLine(rNum) {
+	$("#map").addClass("pointing");
     var polyline = new line(rNum);
     tooltipstate = 1;
     routeDict[polyline.id] = polyline;
@@ -15,6 +16,7 @@ function startNewLine(rNum) {
      //Resets tooltip to null
      tooltipstate = 0;
      $( "#map").tooltip( "close" );
+	 $("#map").removeClass("pointing");
      dialog.dialog( "open" );
     
  }

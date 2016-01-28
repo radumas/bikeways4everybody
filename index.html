@@ -33,7 +33,7 @@
             if ( tooltipstate === 1 ) {
               callback( "Click to add a waypoint to your route" );
             } else if( tooltipstate === 2) {
-              callback( "Double click to finish your route");
+              callback( "Double-click at the end of your route to finish drawing");
             }
         },
 		tooltipClass: "leaflet-draw-tooltip leaflet-draw-tooltip-single j-leaflet-draw-tooltip",
@@ -280,7 +280,6 @@
                 enteredUsername = "'"+username.value+"'";
 
                 dialogGlobal.dialog("close");
-                $('#leftBar').show();
                 validInput = true;
             }
             else{
@@ -297,7 +296,6 @@
                 enteredUsername = "'"+username.value+"'";
 
                 dialogGlobal.dialog("close");
-                $('#leftBar').show();
                 validInput = true;
             }
             else{

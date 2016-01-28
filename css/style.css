@@ -120,3 +120,7 @@ h1 {
 .j-leaflet-draw-tooltip{
 	visibility: visible;
 }
+
+.pointing{
+	cursor: pointer;
+}
