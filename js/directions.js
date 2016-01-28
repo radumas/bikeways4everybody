@@ -1,5 +1,8 @@
+var tooltipstate = 0;
+
 function startNewLine(rNum) {
     var polyline = new line(rNum);
+    tooltipstate = 1;
     routeDict[polyline.id] = polyline;
     return polyline;
 }
@@ -9,16 +12,23 @@ function startNewLine(rNum) {
  */
  function endLine(route1) {
      $("#add-route").removeClass('icon-click');
-    dialog.dialog( "open" );
+     //Resets tooltip to null
+     tooltipstate = 0;
+     $( "#map").tooltip( "close" );
+     dialog.dialog( "open" );
     
  }
 /* Adds a marker to the current route 
  * If a marker is clicked (simulates a double click) the route is ended
  */
 function addMarker(evt) {
-	if (currentLine === null) {
+    //Refresh the tooltip
+    $( "#map").tooltip( "close" );
+	
+    if (currentLine === null) {
 	}
 	else if (currentLine !== null) {
+            
 		var marker = L.marker(evt.latlng, { draggable:true, icon:circleIcon });
 		//marker.setIcon(circleIcon);
 		marker.on('dragend', function() {
@@ -28,7 +38,12 @@ function addMarker(evt) {
         drawnRoute.addLayer(marker);
 		currentLine.waypoints.push(marker);
 		drawRoute(currentLine);
-
+        
+        //Change message of the tooltip
+        if(currentLine.waypoints.length > 1){
+            tooltipstate = 2;
+        }
+        
 		marker.on("click", function () {
 			if (currentLine) {
 				endLine(currentLine);
