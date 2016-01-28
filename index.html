@@ -4,14 +4,21 @@
   <head>
     <meta charset=utf-8 />
     <title>Bikeways for Everybody!</title>
-    <script src="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js"></script>
+<!--      Mapbox-->
+    <script src="https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.css"  />
+<!--      /Mapbox-->
+<!--      Leaflet.draw-->
     <link rel="stylesheet" type="text/css" href="css/leaflet.draw.css" />
-    <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css"  />
+    <script src="https://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
+<!--       /Leaflet.draw-->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script> 
+      
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
 <!--      QGIS Webmap-->
 <!--      <link rel="stylesheet" href="css/leaflet.css" />-->
         <link rel="stylesheet" href="css/MarkerCluster.css" />
@@ -96,7 +103,6 @@
       </form>
     </div>
 
-    <script src="https://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
     <script src="js/definitions.js"></script>
     <script src="js/directions.js"></script>
     <script src="data/json_bikefacilitiesexp.js"></script>
@@ -106,7 +112,8 @@
         L.mapbox.accessToken =                         
             'pk.eyJ1IjoicmVtb3RlZ2VudHJpZnkiLCJhIjoiY2lnanJzMjJpMDA1dnYxbHo5MTZtdGZsYSJ9.gLE8d40zmDAtMSSZyd2h1Q';
 // Create a map in the div #map
-        var map = L.mapbox.map('map', 'remotegentrify.cigjrs0xw0078u1kr4vn4g6wg',{ center: mapFocus,
+        var map = L.mapbox.map('map', 'remotegentrify.ea603042',{ 
+            center: mapFocus,
             zoom: 13, minZoom : 13, maxBounds : bounds, zoomControl :false });
         
         L.control.zoom({position : 'bottomleft'}).addTo(map);
@@ -473,14 +480,33 @@
             var json_bikefacilitiesJSON = new L.geoJson(json_bikefacilitiesexp, {
                 style: doStylebikefacilities
                 ,clickable :false
+                ,pane: 'shadowPane'
             });
         layerOrder[layerOrder.length] = json_bikefacilitiesJSON;
         feature_group.addLayer(json_bikefacilitiesJSON);
         
        L.control.layers({},{'<b>Bike Facilities</b><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Offstreet.png" /> Offstreet<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Cycletrack.png" /> Cycletrack<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Buffered.png" /> Buffered<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Bikelane.png" /> Bikelane<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/legend/bikefacilities_Sharrow.png" /> Sharrow<br />': json_bikefacilitiesJSON},{collapsed:false}).addTo(map);
         L.control.scale({options: {position: 'bottomleft', maxWidth: 100, metric: true, imperial: false, updateWhenIdle: false}}).addTo(map);
-        stackLayers();
         
+        stackLayers();
+//        
+        var CartoDB_PositronOnlyLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+            subdomains: 'abcd',
+            maxZoom: 19,
+            zIndex: 99,
+            pane: 'overlayPane'
+        });
+//        
+////        CartoDB_PositronOnlyLabels.bringToFront();
+        CartoDB_PositronOnlyLabels.addTo(map);
+        
+//        Need to find alternate TileJSON source for label layer.
+//        var topPane = map._createPane('leaflet-top-pane', map.getPanes().mapPane);
+//		var topLayer = L.mapbox.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/{basemap-name}/{z}/{x}/{y}.png').addTo(map);
+//		topPane.appendChild(topLayer.getContainer());
+//		topLayer.setZIndex(9);
+
         
     function refreshLayer() {
              
