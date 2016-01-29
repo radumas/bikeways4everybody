@@ -56,10 +56,10 @@
       </div>
     <div id="leftBar">
 
-        <div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map that you want to see improved ">
+        <div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map where you want improved infrastructure">
             <i class="fa fa-exclamation fa-inverse fa-3x"></i></div>
         <br>
-        <div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you would like to see improved infrastructure">
+        <div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you want improved infrastructure">
             <i class="fa fa-pencil fa-3x fa-inverse"></i>
         </div>
 		<br>
@@ -125,6 +125,7 @@
             }
           }).addTo(map);
                     
+		
             //Empty to store drawn routes after they are submitted
         var submittedRoutes = new L.geoJson(false, {
             onEachFeature: function (feature, layer) {
