@@ -124,7 +124,28 @@
               layer.bindPopup('<b>'+feature.properties.name +', '+ feature.properties.zipcode +'</b><br>'                               +feature.properties.description +'');
             }
           }).addTo(map);
-                    
+        
+		//Bug appeared preventing ending of route drawing.
+		map.doubleClickZoom.disable(); 
+		
+		
+		//Adding layer of labels
+		//See http://gis.stackexchange.com/a/178633/36886
+		var CartoDB_PositronOnlyLabels = {
+			"tilejson": "2.0.1",
+			"tiles":['http://c.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png'], 
+            "attribution": '&copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+            "maxzoom": 19,
+        	"minzoom": 13       
+        };
+        
+		var topPane = map._createPane('leaflet-top-pane', map.getPanes().mapPane);
+		var labelLayer = L.mapbox.tileLayer(CartoDB_PositronOnlyLabels).addTo(map);
+		topPane.appendChild(labelLayer.getContainer());
+		//See for explanation of zindex level http://stackoverflow.com/q/35092858/4047679 
+		labelLayer.setZIndex(5);
+		
+		
 		
             //Empty to store drawn routes after they are submitted
         var submittedRoutes = new L.geoJson(false, {
@@ -490,24 +511,6 @@
         L.control.scale({options: {position: 'bottomleft', maxWidth: 100, metric: true, imperial: false, updateWhenIdle: false}}).addTo(map);
         
         stackLayers();
-//        
-        var CartoDB_PositronOnlyLabels = {
-			"tilejson": "2.0.1",
-			"tiles":['http://c.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png'], 
-            "attribution": '&copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-            "maxzoom": 19,
-        	"minzoom": 13       
-        };
-//        
-		
-		
-////        CartoDB_PositronOnlyLabels.bringToFront();
-//        CartoDB_PositronOnlyLabels.addTo(map);
-        
-        var topPane = map._createPane('leaflet-top-pane', map.getPanes().mapPane);
-		var topLayer = L.mapbox.tileLayer(CartoDB_PositronOnlyLabels).addTo(map);
-		topPane.appendChild(topLayer.getContainer());
-		topLayer.setZIndex(9);
 
         
     function refreshLayer() {
