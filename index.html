@@ -192,35 +192,20 @@
         /* button that triggers adding a marker */
         $("#add-point").on("click", function(){
 			if(validInput===false){
-				dialogGlobal.dialog( "open" );           	
+				dialogGlobal.data('clicked','add-point').dialog( "open" );           	
             }
-            if(validInput){
-				$("#add-route").removeClass('icon-click');
-				$("#add-point").addClass('icon-click');
-				refreshLayer();
-				markerDrawer.enable();
-				routeDraw = false;
-				markerDraw = true;
+            else if(validInput){
+				drawingPoints();
 			}
         });
 		
 		/* button that triggers drawing a route */
         $("#add-route").on("click", function() {
             if(validInput===false){
-				dialogGlobal.dialog( "open" );
+				dialogGlobal.data('clicked','add-route').dialog( "open" );
 			}
-            if(validInput){
-                $("#add-route").addClass('icon-click');
-				$("#add-point").removeClass('icon-click');
-				markerDrawer.disable();
-				refreshLayer();
-				routeDraw = true;
-				markerDraw = false;
-				currentLine = startNewLine(routeNum);
-				map.addLayer(drawnRoute);
-				drawnRoute.addLayer(currentLine.polyline);
-	//          $("#add-route").tooltipster("disable");
-				map.on('click', addMarker);
+            else if(validInput){
+				drawingRoute();
             }			
         });
 
@@ -245,6 +230,71 @@
 		});
 		/*End #left-bar buttons*/
         
+		//Dialog of global user variables
+		dialogGlobal = $( "#dialogGlobal" ).dialog({
+			  autoOpen: false,
+			  height: 300,
+			  width: 350,
+			  modal: true,
+			position: {
+				my: "center center",
+				at: "center center",
+				of: "#map"
+			  },
+		  buttons: [{
+			text: "Submit",
+			  click: function() {
+				var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
+				if (checkedValues.valid){
+					zip = "'"+zipcode.value+"'";
+					enteredUsername = "'"+username.value+"'";
+
+					dialogGlobal.dialog("close");
+					validInput = true;
+					if($(this).data('clicked')=='add-route'){
+						drawingRoute();
+					}
+					else if($(this).data('clicked')=='add-point'){
+						drawingPoints();
+					} 
+				}
+				else{
+					validInput = false;
+					//TODO Print checkedValues.error
+				}
+			},
+			id: "globalAccept"
+		  }],
+		  close: function() {
+				var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
+				if (checkedValues.valid){
+					zip = "'"+zipcode.value+"'";
+					enteredUsername = "'"+username.value+"'";
+
+					dialogGlobal.dialog("close");
+					validInput = true;
+					if($(this).data('clicked')=='add-route'){
+						drawingRoute();
+					}
+					else if($(this).data('clicked')=='add-point'){
+						drawingPoints();
+					}
+				}
+				else{
+					validInput = false;
+					//TODO Print checkedValues.error
+				}
+		  },
+			//Hack to avoid "ENTER" leading to a new page...
+			open: function(){
+				$("#dialogGlobal").keydown(function(e) {
+				  if (e.keyCode == $.ui.keyCode.ENTER) {
+					$("#globalAccept").trigger("click");
+				  }    
+				});
+			}
+		});
+		
         /* dialog that appears after finishing a drawing */
       dialog = $( "#dialog" ).dialog({
           autoOpen: false,
@@ -290,64 +340,13 @@
           }
     });
     
-    dialogGlobal = $( "#dialogGlobal" ).dialog({
-      autoOpen: false,
-      height: 300,
-      width: 350,
-      modal: true,
-      position: {
-        my: "center center",
-        at: "center center",
-        of: "#map"
-      },
-      buttons: [{
-        text: "Submit",
-          click: function() {
-            var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
-            if (checkedValues.valid){
-                zip = "'"+zipcode.value+"'";
-                enteredUsername = "'"+username.value+"'";
-
-                dialogGlobal.dialog("close");
-                validInput = true;
-            }
-            else{
-                validInput = false;
-                //TODO Print checkedValues.error
-            }
-        },
-        id: "globalAccept"
-      }],
-      close: function() {
-            var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
-            if (checkedValues.valid){
-                zip = "'"+zipcode.value+"'";
-                enteredUsername = "'"+username.value+"'";
-
-                dialogGlobal.dialog("close");
-                validInput = true;
-            }
-            else{
-                validInput = false;
-                //TODO Print checkedValues.error
-            }
-      },
-        //Hack to avoid "ENTER" leading to a new page...
-        open: function(){
-            $("#dialogGlobal").keydown(function(e) {
-              if (e.keyCode == $.ui.keyCode.ENTER) {
-                $("#globalAccept").trigger("click");
-              }    
-            });
-        }
-    });
         
     form = dialog.find( "form" ).on( "submit", function( event ) {
       event.preventDefault();
       setData();
     });
         
-        function dialogGlobalChecker(name, zip) {
+	function dialogGlobalChecker(name, zip) {
             var error = [];
             var valid = true;
             if(name.length < 3) {
@@ -362,10 +361,32 @@
                 error.push("Your zipcode is invalid.");
                 valid = false;
             }
-            return {valid: valid, error: error};
-            
-        }
+            return {valid: valid, error: error};        
+    }
         
+		
+	//Functions to initiate drawing
+	function drawingRoute(){
+		$("#add-route").addClass('icon-click');
+		$("#add-point").removeClass('icon-click');
+		markerDrawer.disable();
+		refreshLayer();
+		routeDraw = true;
+		markerDraw = false;
+		currentLine = startNewLine(routeNum);
+		map.addLayer(drawnRoute);
+		drawnRoute.addLayer(currentLine.polyline);
+		map.on('click', addMarker);
+	}
+	function drawingPoints(){
+		$("#add-route").removeClass('icon-click');
+		$("#add-point").addClass('icon-click');
+		refreshLayer();
+		markerDrawer.enable();
+		routeDraw = false;
+		markerDraw = true;
+	}	
+	
     function setData() {
       var enteredDescription = "'"+description.value+"'";
     //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
