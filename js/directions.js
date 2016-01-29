@@ -46,6 +46,12 @@ function addMarker(evt) {
             tooltipstate = 2;
         }
         
+		map.on("dblclick", function () {
+			if (currentLine) {
+				endLine(currentLine);
+			}
+		});
+		
 		marker.on("click", function () {
 			if (currentLine) {
 				endLine(currentLine);
