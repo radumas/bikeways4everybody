@@ -1,8 +1,12 @@
 body {
   margin: 0px;
   font-family: 'Open Sans', Helvetica, sans-serif;
+  height: 100%;
 }
 
+html {
+  height: 100%;
+}
 /*
 
 img {
@@ -27,13 +31,9 @@ img {
 }
 
 #leftBar {
-    left: 10px;
     position: absolute;
     z-index: 1000;
-    top: 60px;
-	margin-top: 10px;
-	padding-top: 0px;
-    padding: 5px;
+    padding: 10px;
 }
 
 
@@ -86,7 +86,7 @@ h1 {
 #map {
   width: 100%;
   margin: 0 auto;
-  height: 450px;
+  height: 100%;
 }
 
 #controls {
