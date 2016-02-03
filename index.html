@@ -51,28 +51,7 @@
   </head>
   <body>
     <div id="wrapper">
-    <div id="leftBar">
-
-        <div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you want improved infrastructure">
-            <i class="fa fa-pencil fa-3x fa-inverse"></i>
-        </div>
-		<br>
-        
-        <div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map where you want improved infrastructure">
-            <i class="fa fa-map-marker fa-inverse fa-3x"></i></div>
-        <br>
-			
-       	<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">
-            <i class="fa fa-info fa-3x fa-inverse"></i>
-		</div>
-		<br>
-			
-       	<div id="cancel" class="circle type1 icon-hover tooltip" title="Learn more">
-            <i class="fa fa-times fa-3x fa-inverse"></i>
-		</div>
-		
-    </div>
-    
+ 
     <div id="map" title=""></div>
     
     <div id="dialogGlobal" title="About You">     
@@ -115,7 +94,7 @@
             zoom: 13, minZoom : 13, maxBounds : bounds, zoomControl :false });
         
         L.control.zoom({position : 'bottomleft'}).addTo(map);
-        
+		    
             //Empty to store markers after they are submitted
         var submittedData = L.geoJson(false, {
             onEachFeature: function (feature, layer) {
@@ -125,6 +104,29 @@
         
 		//Bug appeared preventing ending of route drawing.
 		map.doubleClickZoom.disable(); 
+		
+		//Adding the left Bar of icons as a leaflet control panel
+		var leftBar = L.control({position: 'topleft'});
+	
+		//Inspiration: http://stackoverflow.com/a/25764322/4047679
+		leftBar.onAdd = function(map){
+			var div =L.DomUtil.create('div', '');
+			div.id = 'leftBar';
+			div.innerHTML = '<div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you want improved infrastructure">'
+				+'<i class="fa fa-pencil fa-3x fa-inverse"></i>'
+				+'</div>'
+				+'  <div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map where you want improved infrastructure">'
+				+'<i class="fa fa-map-marker fa-inverse fa-3x"></i>'
+				+'</div><br>'
+				+'<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">'
+				+'<i class="fa fa-info fa-3x fa-inverse"></i>'
+				+'</div>	<br>'
+				+'<div id="cancel" class="circle type1 icon-hover tooltip" title="Learn more">'
+				+'<i class="fa fa-times fa-3x fa-inverse"></i>		</div>';
+			return div;
+		};
+
+		leftBar.addTo(map);
 		
 		
 		//Adding layer of labels
