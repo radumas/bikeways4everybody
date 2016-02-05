@@ -83,7 +83,7 @@ function drawRoute(routeToDraw) {
 
 	  	waypointsString += lastLng + "," + lastLat;
 
-		var directionUrl = 'https://api.mapbox.com/v4/directions/mapbox.walking/'+ waypointsString + '.json?access_token='+config.mapboxDirectionsToken;
+		var directionUrl = 'https://api.mapbox.com/v4/directions/mapbox.walking/'+ waypointsString + '.json?access_token='+config.mapboxAccessToken;
 
 		routeDict[routeToDraw.id].directionUrl = directionUrl;
 
