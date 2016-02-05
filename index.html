@@ -79,14 +79,16 @@
     <script src="js/definitions.js"></script>
     <script src="js/directions.js"></script>
     <script src="data/json_bikefacilitiesexp.js"></script>
+		<script src="js/userconfig.js"></script>
     <script>
         
 
         L.mapbox.accessToken =                         
-            'pk.eyJ1IjoicmVtb3RlZ2VudHJpZnkiLCJhIjoiY2lnanJzMjJpMDA1dnYxbHo5MTZtdGZsYSJ9.gLE8d40zmDAtMSSZyd2h1Q';
+            config.mapboxAccessToken;
 // Create a map in the div #map
-        var map = L.mapbox.map('map', 'remotegentrify.ea603042',{ 
-            center: mapFocus,
+		var bounds = L.latLngBounds(L.latLng(config.south,config.west), L.latLng(config.north,config.east));
+        var map = L.mapbox.map('map', config.baseMap,{ 
+            center: config.mapFocus,
             zoom: 13, minZoom : 13, maxBounds : bounds, zoomControl :false });
         
         L.control.zoom({position : 'bottomleft'}).addTo(map);
@@ -425,7 +427,7 @@
         //Ensures that drawn routes stay on the map.
         if(routeDraw){submittedRoutes.eachLayer( function(layer){layer.addTo(map);});};
       //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
-      var sql = "SELECT "+ cartoDBinsertfunction +"(";
+      var sql = "SELECT "+ config.cartoDBinsertfunction +"(";
       sql += drawing;
       sql += ","+enteredDescription;
       sql += ","+enteredUsername;
@@ -436,7 +438,7 @@
     //Sending the data
       $.ajax({
         type: 'POST',
-        url: 'https://'+cartoDBusername+'.cartodb.com/api/v2/sql',
+        url: 'https://'+config.cartoDBusername+'.cartodb.com/api/v2/sql',
         crossDomain: true,
         data: {"q":sql},
         dataType: 'json',
@@ -565,7 +567,7 @@
         tourStates = [
 	       {
                 title: "Welcome",
-               html: "<p>This webmap allows you to view data collected by the <a href='http://bostoncyclistsunion.org/' target='_blank'>Boston Cyclists Union</a> on biking in Boston.</p><p>It also allows you to submit input on where biking infrastructure can be improved by drawing on the map! The map is restricted to the inner core of Metro Boston, where we concentrate our advocacy.</p>",
+               html: config.walkthroughWelcome,
                buttons:{'I already know':0,'How do I use this?':1},
                focus: 1,
                submit: tourSubmitFunc
@@ -588,7 +590,7 @@
             },
             {
                 title:"Click on <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-exclamation fa-inverse fa-stack-1x'></i></span> and Place a Marker on the Map",
-                html:"<div class = 'img-container'><img src='img/add_marker.gif'></img></div><br>Tell us about dangerous intersections, potholes, etc. When you click 'Save Input' your marker and description are sent to our database.",
+                html:"<div class = 'img-container'><img src='img/add_marker.gif'></div><br>Tell us about dangerous intersections, potholes, etc. When you click 'Save Input' your marker and description are sent to our database.",
                 buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
                 position:{width:500},
                 focus:2,
@@ -596,7 +598,7 @@
             },
             {
                 title:"Or Click on <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-pencil fa-inverse fa-stack-1x'></i></span> to Draw a Route",
-                html:"<div class = 'img-container'><img src='img/draw_route.gif'></img></div><br>Routes can indicate your entire commute, or small locations where bike lanes are missing, or frequently blocked... Click to add points to form a route. Double click on the final point to end that route, and then write a description. You are welcome to input as many routes as you please",
+                html:"<div class = 'img-container'><img src='img/draw_route.gif'></div><br>Routes can indicate your entire commute, or small locations where bike lanes are missing, or frequently blocked... Click to add points to form a route. Double click on the final point to end that route, and then write a description. You are welcome to input as many routes as you please",
                 buttons:{'Go back':-1,'I\'m ready!':0},
                 position:{width:500},
                 focus:1,
