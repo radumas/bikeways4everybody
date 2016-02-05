@@ -21,16 +21,12 @@
 
 <!--      QGIS Webmap-->
 <!--      <link rel="stylesheet" href="css/leaflet.css" />-->
-        <link rel="stylesheet" href="css/MarkerCluster.css" />
-        <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
         <link rel="stylesheet" href="css/label.css" />
         <script src="js/label.js"></script>
-        <script src="js/Autolinker.min.js"></script>
-        <script src="js/leaflet.markercluster.js"></script>
 <!--      /QGIS Webmap-->      
 <!--      Impromptu (for walkthrough)-->
-<link rel="stylesheet" href="jQuery-Impromptu/dist/jquery-impromptu.min.css" />
-<script src="jQuery-Impromptu/dist/jquery-impromptu.min.js"></script>
+	  <link rel="stylesheet" href="jQuery-Impromptu/dist/jquery-impromptu.min.css" />
+	  <script src="jQuery-Impromptu/dist/jquery-impromptu.min.js"></script>
 <!--      /Impromptu                 -->      
   <script>
   $(function() {
@@ -51,30 +47,7 @@
   </head>
   <body>
     <div id="wrapper">
-      <div id="header">
-        <h1>Bikeways for Everybody!</h1>
-      </div>
-    <div id="leftBar">
-
-        <div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map where you want improved infrastructure">
-            <i class="fa fa-exclamation fa-inverse fa-3x"></i></div>
-        <br>
-        <div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you want improved infrastructure">
-            <i class="fa fa-pencil fa-3x fa-inverse"></i>
-        </div>
-		<br>
-			
-       	<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">
-            <i class="fa fa-info fa-3x fa-inverse"></i>
-		</div>
-		<br>
-			
-       	<div id="cancel" class="circle type1 icon-hover tooltip" title="Learn more">
-            <i class="fa fa-times fa-3x fa-inverse"></i>
-		</div>
-		
-    </div>
-    
+ 
     <div id="map" title=""></div>
     
     <div id="dialogGlobal" title="About You">     
@@ -106,18 +79,20 @@
     <script src="js/definitions.js"></script>
     <script src="js/directions.js"></script>
     <script src="data/json_bikefacilitiesexp.js"></script>
+		<script src="js/userconfig.js"></script>
     <script>
         
 
         L.mapbox.accessToken =                         
-            'pk.eyJ1IjoicmVtb3RlZ2VudHJpZnkiLCJhIjoiY2lnanJzMjJpMDA1dnYxbHo5MTZtdGZsYSJ9.gLE8d40zmDAtMSSZyd2h1Q';
+            config.mapboxAccessToken;
 // Create a map in the div #map
-        var map = L.mapbox.map('map', 'remotegentrify.ea603042',{ 
-            center: mapFocus,
+		var bounds = L.latLngBounds(L.latLng(config.south,config.west), L.latLng(config.north,config.east));
+        var map = L.mapbox.map('map', config.baseMap,{ 
+            center: config.mapFocus,
             zoom: 13, minZoom : 13, maxBounds : bounds, zoomControl :false });
         
         L.control.zoom({position : 'bottomleft'}).addTo(map);
-        
+		    
             //Empty to store markers after they are submitted
         var submittedData = L.geoJson(false, {
             onEachFeature: function (feature, layer) {
@@ -127,6 +102,29 @@
         
 		//Bug appeared preventing ending of route drawing.
 		map.doubleClickZoom.disable(); 
+		
+		//Adding the left Bar of icons as a leaflet control panel
+		var leftBar = L.control({position: 'topleft'});
+	
+		//Inspiration: http://stackoverflow.com/a/25764322/4047679
+		leftBar.onAdd = function(map){
+			var div =L.DomUtil.create('div', '');
+			div.id = 'leftBar';
+			div.innerHTML = '<div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you want improved infrastructure">'
+				+'<i class="fa fa-pencil fa-3x fa-inverse"></i>'
+				+'</div>'
+				+'  <div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map where you want improved infrastructure">'
+				+'<i class="fa fa-map-marker fa-inverse fa-3x"></i>'
+				+'</div><br>'
+				+'<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">'
+				+'<i class="fa fa-info fa-3x fa-inverse"></i>'
+				+'</div>	<br>'
+				+'<div id="cancel" class="circle type1 icon-hover tooltip" title="Learn more">'
+				+'<i class="fa fa-times fa-3x fa-inverse"></i>		</div>';
+			return div;
+		};
+
+		leftBar.addTo(map);
 		
 		
 		//Adding layer of labels
@@ -429,7 +427,7 @@
         //Ensures that drawn routes stay on the map.
         if(routeDraw){submittedRoutes.eachLayer( function(layer){layer.addTo(map);});};
       //Construct the SQL query to insert data from the three parameters: the drawing, the input username, and the input description of the drawn shape
-      var sql = "SELECT "+ cartoDBinsertfunction +"(";
+      var sql = "SELECT "+ config.cartoDBinsertfunction +"(";
       sql += drawing;
       sql += ","+enteredDescription;
       sql += ","+enteredUsername;
@@ -440,7 +438,7 @@
     //Sending the data
       $.ajax({
         type: 'POST',
-        url: 'https://'+cartoDBusername+'.cartodb.com/api/v2/sql',
+        url: 'https://'+config.cartoDBusername+'.cartodb.com/api/v2/sql',
         crossDomain: true,
         data: {"q":sql},
         dataType: 'json',
@@ -569,7 +567,7 @@
         tourStates = [
 	       {
                 title: "Welcome",
-               html: "<p>This webmap allows you to view data collected by the Boston Cyclists Union on biking in Boston.</p><p>It also allows you to submit input on where biking infrastructure can be improved by drawing on the map!</p>",
+               html: config.walkthroughWelcome,
                buttons:{'I already know':0,'How do I use this?':1},
                focus: 1,
                submit: tourSubmitFunc
@@ -586,13 +584,13 @@
                 title:"Enable Drawing",
                 html:"Click on either <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-exclamation fa-inverse fa-stack-1x'></i></span> or <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-pencil fa-inverse fa-stack-1x'></i></span> to start giving your input. First we'll want you to enter your first name and zipcode.<br> After that you'll be able to add your input to the map!",
                 buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
-                position: { container: '#leftBar', x: 90, y: 0, width: 300, arrow: 'lt' },
+                position: { container: '#leftBar', x: 150, y: 0, width: 300, arrow: 'lt' },
                 focus:2,
                 submit:tourSubmitFunc
             },
             {
                 title:"Click on <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-exclamation fa-inverse fa-stack-1x'></i></span> and Place a Marker on the Map",
-                html:"<div class = 'img-container'><img src='img/add_marker.gif'></img></div><br>Tell us about dangerous intersections, potholes, etc. When you click 'Save Input' your marker and description are sent to our database.",
+                html:"<div class = 'img-container'><img src='img/add_marker.gif'></div><br>Tell us about dangerous intersections, potholes, etc. When you click 'Save Input' your marker and description are sent to our database.",
                 buttons:{'Go back':-1,'I\'m done':0,'Tell me more!':1},
                 position:{width:500},
                 focus:2,
@@ -600,7 +598,7 @@
             },
             {
                 title:"Or Click on <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-pencil fa-inverse fa-stack-1x'></i></span> to Draw a Route",
-                html:"<div class = 'img-container'><img src='img/draw_route.gif'></img></div><br>Routes can indicate your entire commute, or small locations where bike lanes are missing, or frequently blocked... Click to add points to form a route. Double click on the final point to end that route, and then write a description.",
+                html:"<div class = 'img-container'><img src='img/draw_route.gif'></div><br>Routes can indicate your entire commute, or small locations where bike lanes are missing, or frequently blocked... Click to add points to form a route. Double click on the final point to end that route, and then write a description. You are welcome to input as many routes as you please",
                 buttons:{'Go back':-1,'I\'m ready!':0},
                 position:{width:500},
                 focus:1,
