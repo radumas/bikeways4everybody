@@ -39,6 +39,7 @@
               callback( "Double-click at the end of your route to finish drawing");
             }
         },
+		collision:'none',
 		tooltipClass: "leaflet-draw-tooltip leaflet-draw-tooltip-single j-leaflet-draw-tooltip",
 		position: { my: "left+20 center", at: "right center"}
     });
@@ -119,7 +120,7 @@
 				+'<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">'
 				+'<i class="fa fa-info fa-3x fa-inverse"></i>'
 				+'</div>	<br>'
-				+'<div id="cancel" class="circle type1 icon-hover tooltip" title="Learn more">'
+				+'<div id="cancel" class="circle type1 icon-hover tooltip" title="Cancel drawing">'
 				+'<i class="fa fa-times fa-3x fa-inverse"></i>		</div>';
 			return div;
 		};
@@ -188,7 +189,8 @@
         
 		 	/*#left-bar buttons*/ 
         /* button that triggers adding a marker */
-        $("#add-point").on("click", function(){
+        $("#add-point").on("click", function(event){
+			event.stopPropagation();
 			if(validInput===false){
 				dialogGlobal.data('clicked','add-point').dialog( "open" );           	
             }
@@ -198,7 +200,8 @@
         });
 		
 		/* button that triggers drawing a route */
-        $("#add-route").on("click", function() {
+        $("#add-route").on("click", function(event) {
+			event.stopPropagation();
             if(validInput===false){
 				dialogGlobal.data('clicked','add-route').dialog( "open" );
 			}
@@ -215,12 +218,11 @@
 		
 		$("#cancel").on("click", function(){
 		    if(routeDraw){
-                currentLine = null;
-                
+                endLine(currentLine,true);
             }
             else if (markerDraw){
                 markerDrawer.disable();
-            }
+            };
             refreshLayer();
             $("#add-route").removeClass('icon-click');
             $("#add-point").removeClass('icon-click');
@@ -305,25 +307,26 @@
             of: "#map"
         },
           buttons: {
-            "Save Input": setData,
+            "Save Input": function(){
+				setData();
+			
+			},
             Cancel: function() {
                 if(markerDraw){
                     refreshLayer();
                     markerDrawer.enable();
                 }
                 /* Do nothing if drawing a route */
-//                else if(routeDraw){
-//                    currentLine = null;
-//                }
                 dialog.dialog("close");
             }
           },
           close: function() {
-            form[ 0 ].reset();
+//            form[ 0 ].reset();
             if(markerDraw){
                     refreshLayer();
                     markerDrawer.enable();
             }
+
           }
           , open: function() {
               var _title = "Tell us about this";
@@ -339,10 +342,10 @@
     });
     
         
-    form = dialog.find( "form" ).on( "submit", function( event ) {
-      event.preventDefault();
-      setData();
-    });
+//    form = dialog.find( "form" ).on( "submit", function( event ) {
+//      event.preventDefault();
+//      setData();
+//    });
         
 	function dialogGlobalChecker(name, zip) {
             var error = [];
@@ -377,11 +380,15 @@
 		map.on('click', addMarker);
 	}
 	function drawingPoints(){
-		$("#add-route").removeClass('icon-click');
+		if(routeDraw){
+			endLine(currentLine,true);
+			refreshLayer();
+			routeDraw = false;
+			$("#add-route").removeClass('icon-click');
+		};
 		$("#add-point").addClass('icon-click');
-		refreshLayer();
+	
 		markerDrawer.enable();
-		routeDraw = false;
 		markerDraw = true;
 	}	
 	
@@ -407,8 +414,8 @@
             submittedRoutes.addData(submittedLine);
             
             routeNum ++;
-            currentLine = null;
-        };
+			stopRouteDraw();
+		};
         if(markerDraw){
             drawnMarkers.eachLayer(function (layer) {
                 //Convert the drawing to a GeoJSON to pass to the CartoDB sql database
