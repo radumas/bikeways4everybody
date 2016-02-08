@@ -11,10 +11,10 @@ var config = {
 	east : -70.95,
 	//Mapbox access token & key for basemap
 	mapboxAccessToken :              
-            'pk.eyJ1IjoicmVtb3RlZ2VudHJpZnkiLCJhIjoiY2lnanJzMjJpMDA1dnYxbHo5MTZtdGZsYSJ9.gLE8d40zmDAtMSSZyd2h1Q',
+            'pk.eyJ1IjoicmFwaGJjdSIsImEiOiJjaWthNzVlb3Uwamc3dXhrcG16ajQwZ3JsIn0.v7QSzegphm27n89KJEFwIw',
 	baseMap: 'remotegentrify.ea603042',
     //Change to your username, insert function on cartodb, and cartodb tablename (see also /cartoDB_functions)
-	cartoDBusername : 'raphaeld',
+	cartoDBusername : 'bcu',
 	cartoDBinsertfunction : 'insert_bikeways_data',
 	walkthroughWelcome: "<p>This webmap allows you to view data collected by the <a href='http://bostoncyclistsunion.org/' target='_blank'>Boston Cyclists Union</a> on biking in Boston.</p><p>It also allows you to submit input on where biking infrastructure can be improved by drawing on the map! The map is restricted to the inner core of Metro Boston, where we concentrate our advocacy.</p>"
 };
