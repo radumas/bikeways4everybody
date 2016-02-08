@@ -1,4 +1,4 @@
-DROP FUNCTION IF EXISTS insert_bikeways_data(text,text,text,text);
+DROP FUNCTION IF EXISTS insert_bikeways_data(text,text,text,text,text);
 --Assumes only one value being inserted
 
 CREATE OR REPLACE FUNCTION insert_bikeways_data (
@@ -26,4 +26,4 @@ $$
 LANGUAGE plpgsql SECURITY DEFINER ;
 
 --Grant access to the public user
-GRANT EXECUTE ON FUNCTION insert_bikeways_data(text,text,text,text) TO publicuser;
+GRANT EXECUTE ON FUNCTION insert_bikeways_data(text,text,text,text,text) TO publicuser;
