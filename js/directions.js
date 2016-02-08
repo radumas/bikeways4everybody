@@ -11,15 +11,24 @@ function startNewLine(rNum) {
 
 /* Ends the current line
  */
- function endLine(route1) {
-     $("#add-route").removeClass('icon-click');
+ function endLine(route1, cancelled) {
+	 if(cancelled){
+		 stopRouteDraw();
+	 }
+	 else{
+     	dialog.dialog( "open" );
+	 };    
+ }
+
+function stopRouteDraw(){
+	 currentLine = null;
+	 map.removeEventListener('dblclick');
+	 $("#add-route").removeClass('icon-click');
      //Resets tooltip to null
      tooltipstate = 0;
      $( "#map").tooltip( "close" );
 	 $("#map").removeClass("pointing");
-     dialog.dialog( "open" );
-    
- }
+}
 /* Adds a marker to the current route 
  * If a marker is clicked (simulates a double click) the route is ended
  */
@@ -41,22 +50,24 @@ function addMarker(evt) {
 		currentLine.waypoints.push(marker);
 		drawRoute(currentLine);
         
-        //Change message of the tooltip
+        //Change message of the tooltip, and enable finishing route
         if(currentLine.waypoints.length > 1){
-            tooltipstate = 2;
-        }
-        
-		map.on("dblclick", function () {
-			if (currentLine) {
-				endLine(currentLine);
-			}
-		});
-		
-		marker.on("click", function () {
-			if (currentLine) {
-				endLine(currentLine);
-			}
-		});
+				tooltipstate = 2;
+
+
+
+			map.on("dblclick", function () {
+				if (currentLine) {
+					endLine(currentLine, false);
+				}
+			});
+
+			marker.on("click", function () {
+				if (currentLine) {
+					endLine(currentLine, false);
+				}
+			});
+		}
 	}
 }
 
