@@ -227,7 +227,11 @@
             $("#add-route").removeClass('icon-click');
             $("#add-point").removeClass('icon-click');
             markerDraw = false; routeDraw = false;
+			$("#cancel").hide();
 		});
+		
+		//Only show when drawing happens
+		$("#cancel").hide();
 		/*End #left-bar buttons*/
         
 		//Dialog of global user variables
@@ -370,6 +374,7 @@
 	function drawingRoute(){
 		$("#add-route").addClass('icon-click');
 		$("#add-point").removeClass('icon-click');
+		$("#cancel").show();
 		markerDrawer.disable();
 		refreshLayer();
 		routeDraw = true;
@@ -378,6 +383,7 @@
 		map.addLayer(drawnRoute);
 		drawnRoute.addLayer(currentLine.polyline);
 		map.on('click', addMarker);
+		
 	}
 	function drawingPoints(){
 		if(routeDraw){
@@ -387,7 +393,7 @@
 			$("#add-route").removeClass('icon-click');
 		};
 		$("#add-point").addClass('icon-click');
-	
+		$("#cancel").show();
 		markerDrawer.enable();
 		markerDraw = true;
 	}	
@@ -415,6 +421,7 @@
             
             routeNum ++;
 			stopRouteDraw();
+			$("#cancel").hide();
 		};
         if(markerDraw){
             drawnMarkers.eachLayer(function (layer) {
