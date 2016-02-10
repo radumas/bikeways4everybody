@@ -1,76 +1,86 @@
-var tooltipstate = 0;
+var marker = null;
 
 function startNewLine(rNum) {
 	$("#map").addClass("pointing");
     var polyline = new line(rNum);
-    tooltipstate = 1;
     routeDict[polyline.id] = polyline;
+    routeDrawTooltip = new L.Tooltip(map);
+    map.on('mousemove', _onMouseMove);
+    routeDrawTooltip.updateContent({text:"Click to add a waypoint to your route"});
     return polyline;
 }
 
 
 /* Ends the current line
  */
- function endLine(route1, cancelled) {
-	 if(cancelled){
-		 stopRouteDraw();
-	 }
-	 else{
-     	dialog.dialog( "open" );
-	 };    
+ function endLine() {
+	 dialog.dialog( "open" );
  }
+
+function cancelLine(){
+	stopRouteDraw();
+}
 
 function stopRouteDraw(){
 	 currentLine = null;
 	 map.removeEventListener('dblclick');
+     map.off('mousemove', _onMouseMove);
+	 map.off('click', addMarker);
+	 map.removeLayer(marker);
+	 marker = null;
 	 $("#add-route").removeClass('icon-click');
-     //Resets tooltip to null
-     tooltipstate = 0;
-     $( "#map").tooltip( "close" );
 	 $("#map").removeClass("pointing");
+    routeDrawTooltip.dispose();
 }
 /* Adds a marker to the current route 
  * If a marker is clicked (simulates a double click) the route is ended
  */
 function addMarker(evt) {
-    //Refresh the tooltip
-    $( "#map").tooltip( "close" );
 	
     if (currentLine === null) {
 	}
 	else if (currentLine !== null) {
-            
-		var marker = L.marker(evt.latlng, { draggable:true, icon:circleIcon });
-		//marker.setIcon(circleIcon);
+
 		marker.on('dragend', function() {
 			drawRoute(currentLine);
 		});
-//		marker.addTo(map);
+
         drawnRoute.addLayer(marker);
 		currentLine.waypoints.push(marker);
 		drawRoute(currentLine);
-        
+
+		marker = new L.marker(evt.latlng, { draggable:true, icon:circleIcon}).addTo(map);
         //Change message of the tooltip, and enable finishing route
-        if(currentLine.waypoints.length > 1){
-				tooltipstate = 2;
+        if(currentLine.waypoints.length > 2){
+            routeDrawTooltip.updateContent({text: 'Right-click to finish drawing' });
 
 
-
-			map.on("dblclick", function () {
-				if (currentLine) {
-					endLine(currentLine, false);
-				}
-			});
-
-			marker.on("click", function () {
-				if (currentLine) {
-					endLine(currentLine, false);
-				}
-			});
+			map.on("dblclick", endLine);
+			
+			marker.on("dblclick", endLine);
+			marker.on('contextmenu', endLine);
+			map.on('contextmenu', endLine);
+				
 		}
 	}
 }
 
+
+function _onMouseMove (e) {
+	var latlng = e.latlng;
+
+	if(!marker){
+		marker = L.marker(latlng, { draggable:true, icon:circleIcon });
+		map.addLayer(marker);
+	}
+	else{
+		marker.setLatLng(latlng);	
+	}
+	
+	
+	routeDrawTooltip.updatePosition(latlng);
+}
+        
 
 /* Draws the route between a given set of waypoints
  * If there are at least 2 points then a request is sent to the directions api
