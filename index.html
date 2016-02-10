@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
 <!--      QGIS Webmap-->
-<!--      <link rel="stylesheet" href="css/leaflet.css" />-->
         <link rel="stylesheet" href="css/label.css" />
         <script src="js/label.js"></script>
 <!--      /QGIS Webmap-->      
@@ -28,23 +27,7 @@
 	  <link rel="stylesheet" href="jQuery-Impromptu/dist/jquery-impromptu.min.css" />
 	  <script src="jQuery-Impromptu/dist/jquery-impromptu.min.js"></script>
 <!--      /Impromptu                 -->      
-  <script>
-  $(function() {
-    $( "#map" ).tooltip({
-        track: true,
-        content: function( callback ) {
-            if ( tooltipstate === 1 ) {
-              callback( "Click to add a waypoint to your route" );
-            } else if( tooltipstate === 2) {
-              callback( "Double-click at the end of your route to finish drawing");
-            }
-        },
-		collision:'none',
-		tooltipClass: "leaflet-draw-tooltip leaflet-draw-tooltip-single j-leaflet-draw-tooltip",
-		position: { my: "left+20 center", at: "right center"}
-    });
-  });
-  </script>
+
   </head>
   <body>
     <div id="wrapper">
@@ -161,11 +144,10 @@
                     }
           }).addTo(map);
         var drawnMarkers = new L.FeatureGroup();
+		map.addLayer(drawnMarkers);
         var drawnRoute = new L.FeatureGroup();
         
-//        $(document).ready(function () {
-//
-//		});
+
         
         var drawControl = new L.Control.Draw({
           draw : {
@@ -182,7 +164,6 @@
         
         map.on('draw:created', function (e) {
             var layer = e.layer;
-            map.addLayer(drawnMarkers);
             drawnMarkers.addLayer(layer);
             dialog.dialog( "open" );
         });        
@@ -218,7 +199,7 @@
 		
 		$("#cancel").on("click", function(){
 		    if(routeDraw){
-                endLine(currentLine,true);
+                cancelLine();
             }
             else if (markerDraw){
                 markerDrawer.disable();
@@ -229,9 +210,9 @@
             markerDraw = false; routeDraw = false;
 			$("#cancel").hide();
 		});
-		
 		//Only show when drawing happens
 		$("#cancel").hide();
+
 		/*End #left-bar buttons*/
         
 		//Dialog of global user variables
@@ -320,12 +301,10 @@
                     refreshLayer();
                     markerDrawer.enable();
                 }
-                /* Do nothing if drawing a route */
                 dialog.dialog("close");
             }
           },
           close: function() {
-//            form[ 0 ].reset();
             if(markerDraw){
                     refreshLayer();
                     markerDrawer.enable();
@@ -344,12 +323,6 @@
               
           }
     });
-    
-        
-//    form = dialog.find( "form" ).on( "submit", function( event ) {
-//      event.preventDefault();
-//      setData();
-//    });
         
 	function dialogGlobalChecker(name, zip) {
             var error = [];
@@ -382,8 +355,6 @@
 		currentLine = startNewLine(routeNum);
 		map.addLayer(drawnRoute);
 		drawnRoute.addLayer(currentLine.polyline);
-		map.on('click', addMarker);
-		
 	}
 	function drawingPoints(){
 		if(routeDraw){
@@ -554,12 +525,7 @@
         }else if(routeDraw){
             map.removeLayer(drawnRoute);
             drawnRoute = new L.FeatureGroup();
-            $( "#map").tooltip( "close" );
         }
-//      if (map.hasLayer(cartoDBData)) {
-//        map.removeLayer(cartoDBData);
-//      };
-//      getGeoJSON();
     };
         
         
