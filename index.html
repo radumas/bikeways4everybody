@@ -86,6 +86,8 @@
         
 		//Bug appeared preventing ending of route drawing.
 		map.doubleClickZoom.disable(); 
+//		Do nothing on right-click
+		map.on('contextmenu', []);
 		
 		//Adding the left Bar of icons as a leaflet control panel
 		var leftBar = L.control({position: 'topleft'});
@@ -103,8 +105,11 @@
 				+'<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">'
 				+'<i class="fa fa-info fa-3x fa-inverse"></i>'
 				+'</div>	<br>'
-				+'<div id="cancel" class="circle type1 icon-hover tooltip" title="Cancel drawing">'
-				+'<i class="fa fa-times fa-3x fa-inverse"></i>		</div>';
+				+'<div id="cancel" class="circle type1 icon-hover tooltip" title="Cancel drawing" style="inline-block">'
+				+'<i class="fa fa-times fa-3x fa-inverse"></i>'
+				+'</div>'
+				+' <div id="save" class="circle type1 icon-hover tooltip" title="Save Route" style="inline-block">'
+				+'<i class="fa fa-floppy-o fa-3x fa-inverse"></i></div>';
 			return div;
 		};
 
@@ -193,12 +198,14 @@
 
 
 		/*Button that triggers the initial walkthrough again*/
-		$("#about").on("click", function(){
+		$("#about").on("click", function(event){
+			event.stopPropagation();
 		     $.prompt(tourStates);
 		});
 		
-		$("#cancel").on("click", function(){
-		    if(routeDraw){
+		$("#cancel").on("click", function(event){
+			event.stopPropagation();
+			if(routeDraw){
                 cancelLine();
             }
             else if (markerDraw){
@@ -209,9 +216,16 @@
             $("#add-point").removeClass('icon-click');
             markerDraw = false; routeDraw = false;
 			$("#cancel").hide();
+			$("#save").hide();
+		});
+		
+		$("#save").on("click", function(event){
+			event.stopPropagation();
+			dialog.dialog("open");
 		});
 		//Only show when drawing happens
 		$("#cancel").hide();
+		$("#save").hide();
 
 		/*End #left-bar buttons*/
         
@@ -358,10 +372,11 @@
 	}
 	function drawingPoints(){
 		if(routeDraw){
-			endLine(currentLine,true);
+			cancelLine();
 			refreshLayer();
 			routeDraw = false;
 			$("#add-route").removeClass('icon-click');
+			$("#save").hide();
 		};
 		$("#add-point").addClass('icon-click');
 		$("#cancel").show();
@@ -393,6 +408,7 @@
             routeNum ++;
 			stopRouteDraw();
 			$("#cancel").hide();
+			$("#save").hide();
 		};
         if(markerDraw){
             drawnMarkers.eachLayer(function (layer) {

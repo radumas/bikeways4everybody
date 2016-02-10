@@ -12,7 +12,7 @@ function startNewLine(rNum) {
 
 /* Ends the current line
  */
- function endLine() {
+ function endLine(evt) {
 	 dialog.dialog( "open" );
  }
 
@@ -21,45 +21,44 @@ function cancelLine(){
 }
 
 function stopRouteDraw(){
-	 currentLine = null;
-	 map.removeEventListener('dblclick');
-     map.off('mousemove', _onMouseMove);
-	 map.off('click', addMarker);
-	 $("#add-route").removeClass('icon-click');
-	 $("#map").removeClass("pointing");
-    routeDrawTooltip.dispose();
+	currentLine = null;
+	routeDrawTooltip.dispose();
+	map.removeEventListener('dblclick');
+	map.off('mousemove', _onMouseMove);
+	map.off('click', addMarker);
+	$("#add-route").removeClass('icon-click');
+	$("#map").removeClass("pointing");
 }
 /* Adds a marker to the current route 
  * If a marker is clicked (simulates a double click) the route is ended
  */
 function addMarker(evt) {
+
 	
     if (currentLine === null) {
 	}
 	else if (currentLine !== null) {
 
-		var marker = L.marker(evt.latlng, { draggable:true, icon:circleIcon });
+		var marker = new L.marker(evt.latlng, { draggable:true, icon:circleIcon });
 		
 		marker.on('dragend', function() {
 			drawRoute(currentLine);
 		});
 		
-        drawnRoute.addLayer(marker);
+        //Change message of the tooltip, and enable finishing route
+        if(currentLine.waypoints.length > 2){
+			routeDrawTooltip.updateContent({text: 'Double-click on a point to finish drawing' });
+			map.on("dblclick", endLine);
+//			marker.on('click', endLine);
+			marker.on("dblclick", endLine);
+//			marker.on('contextmenu', endLine);
+//			map.on('contextmenu', endLine);		
+			$("#save").show();
+			$("#save").css({'display':'inline-block'});
+		}
+		drawnRoute.addLayer(marker);
 		currentLine.waypoints.push(marker);
 		drawRoute(currentLine);
-
-        //Change message of the tooltip, and enable finishing route
-        if(currentLine.waypoints.length > 1){
-            routeDrawTooltip.updateContent({text: 'Double-click to finish drawing' });
-
-
-			map.on("dblclick", endLine);
-			marker.on('click', endLine);
-			marker.on("dblclick", endLine);
-			marker.on('contextmenu', endLine);
-			map.on('contextmenu', endLine);
-				
-		}
 	}
 }
 
