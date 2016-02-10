@@ -144,6 +144,7 @@
                     }
           }).addTo(map);
         var drawnMarkers = new L.FeatureGroup();
+		map.addLayer(drawnMarkers);
         var drawnRoute = new L.FeatureGroup();
         
 
@@ -163,7 +164,6 @@
         
         map.on('draw:created', function (e) {
             var layer = e.layer;
-            map.addLayer(drawnMarkers);
             drawnMarkers.addLayer(layer);
             dialog.dialog( "open" );
         });        
@@ -352,7 +352,6 @@
 		currentLine = startNewLine(routeNum);
 		map.addLayer(drawnRoute);
 		drawnRoute.addLayer(currentLine.polyline);
-		map.on('click', addMarker);
 	}
 	function drawingPoints(){
 		if(routeDraw){

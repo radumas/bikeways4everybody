@@ -1,11 +1,10 @@
-var marker = null;
-
 function startNewLine(rNum) {
 	$("#map").addClass("pointing");
     var polyline = new line(rNum);
     routeDict[polyline.id] = polyline;
     routeDrawTooltip = new L.Tooltip(map);
     map.on('mousemove', _onMouseMove);
+	map.on('click', addMarker);
     routeDrawTooltip.updateContent({text:"Click to add a waypoint to your route"});
     return polyline;
 }
@@ -26,8 +25,6 @@ function stopRouteDraw(){
 	 map.removeEventListener('dblclick');
      map.off('mousemove', _onMouseMove);
 	 map.off('click', addMarker);
-	 map.removeLayer(marker);
-	 marker = null;
 	 $("#add-route").removeClass('icon-click');
 	 $("#map").removeClass("pointing");
     routeDrawTooltip.dispose();
@@ -41,22 +38,23 @@ function addMarker(evt) {
 	}
 	else if (currentLine !== null) {
 
+		var marker = L.marker(evt.latlng, { draggable:true, icon:circleIcon });
+		
 		marker.on('dragend', function() {
 			drawRoute(currentLine);
 		});
-
+		
         drawnRoute.addLayer(marker);
 		currentLine.waypoints.push(marker);
 		drawRoute(currentLine);
 
-		marker = new L.marker(evt.latlng, { draggable:true, icon:circleIcon}).addTo(map);
         //Change message of the tooltip, and enable finishing route
-        if(currentLine.waypoints.length > 2){
-            routeDrawTooltip.updateContent({text: 'Right-click to finish drawing' });
+        if(currentLine.waypoints.length > 1){
+            routeDrawTooltip.updateContent({text: 'Double-click to finish drawing' });
 
 
 			map.on("dblclick", endLine);
-			
+			marker.on('click', endLine);
 			marker.on("dblclick", endLine);
 			marker.on('contextmenu', endLine);
 			map.on('contextmenu', endLine);
@@ -67,17 +65,7 @@ function addMarker(evt) {
 
 
 function _onMouseMove (e) {
-	var latlng = e.latlng;
-
-	if(!marker){
-		marker = L.marker(latlng, { draggable:true, icon:circleIcon });
-		map.addLayer(marker);
-	}
-	else{
-		marker.setLatLng(latlng);	
-	}
-	
-	
+	var latlng = e.latlng;	
 	routeDrawTooltip.updatePosition(latlng);
 }
         
