@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
 <!--      QGIS Webmap-->
-<!--      <link rel="stylesheet" href="css/leaflet.css" />-->
         <link rel="stylesheet" href="css/label.css" />
         <script src="js/label.js"></script>
 <!--      /QGIS Webmap-->      
@@ -28,23 +27,7 @@
 	  <link rel="stylesheet" href="jQuery-Impromptu/dist/jquery-impromptu.min.css" />
 	  <script src="jQuery-Impromptu/dist/jquery-impromptu.min.js"></script>
 <!--      /Impromptu                 -->      
-  <script>
-  $(function() {
-    $( "#map" ).tooltip({
-        track: true,
-        content: function( callback ) {
-            if ( tooltipstate === 1 ) {
-              callback( "Click to add a waypoint to your route" );
-            } else if( tooltipstate === 2) {
-              callback( "Double-click at the end of your route to finish drawing");
-            }
-        },
-		collision:'none',
-		tooltipClass: "leaflet-draw-tooltip leaflet-draw-tooltip-single j-leaflet-draw-tooltip",
-		position: { my: "left+20 center", at: "right center"}
-    });
-  });
-  </script>
+
   </head>
   <body>
     <div id="wrapper">
@@ -103,6 +86,8 @@
         
 		//Bug appeared preventing ending of route drawing.
 		map.doubleClickZoom.disable(); 
+//		Do nothing on right-click
+		map.on('contextmenu', []);
 		
 		//Adding the left Bar of icons as a leaflet control panel
 		var leftBar = L.control({position: 'topleft'});
@@ -120,8 +105,11 @@
 				+'<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">'
 				+'<i class="fa fa-info fa-3x fa-inverse"></i>'
 				+'</div>	<br>'
-				+'<div id="cancel" class="circle type1 icon-hover tooltip" title="Cancel drawing">'
-				+'<i class="fa fa-times fa-3x fa-inverse"></i>		</div>';
+				+'<div id="cancel" class="circle type1 icon-hover tooltip" title="Cancel drawing" style="inline-block">'
+				+'<i class="fa fa-times fa-3x fa-inverse"></i>'
+				+'</div>'
+				+' <div id="save" class="circle type1 icon-hover tooltip" title="Save Route" style="inline-block">'
+				+'<i class="fa fa-floppy-o fa-3x fa-inverse"></i></div>';
 			return div;
 		};
 
@@ -161,11 +149,10 @@
                     }
           }).addTo(map);
         var drawnMarkers = new L.FeatureGroup();
+		map.addLayer(drawnMarkers);
         var drawnRoute = new L.FeatureGroup();
         
-//        $(document).ready(function () {
-//
-//		});
+
         
         var drawControl = new L.Control.Draw({
           draw : {
@@ -182,7 +169,6 @@
         
         map.on('draw:created', function (e) {
             var layer = e.layer;
-            map.addLayer(drawnMarkers);
             drawnMarkers.addLayer(layer);
             dialog.dialog( "open" );
         });        
@@ -212,13 +198,15 @@
 
 
 		/*Button that triggers the initial walkthrough again*/
-		$("#about").on("click", function(){
+		$("#about").on("click", function(event){
+			event.stopPropagation();
 		     $.prompt(tourStates);
 		});
 		
-		$("#cancel").on("click", function(){
-		    if(routeDraw){
-                endLine(currentLine,true);
+		$("#cancel").on("click", function(event){
+			event.stopPropagation();
+			if(routeDraw){
+                cancelLine();
             }
             else if (markerDraw){
                 markerDrawer.disable();
@@ -227,7 +215,18 @@
             $("#add-route").removeClass('icon-click');
             $("#add-point").removeClass('icon-click');
             markerDraw = false; routeDraw = false;
+			$("#cancel").hide();
+			$("#save").hide();
 		});
+		
+		$("#save").on("click", function(event){
+			event.stopPropagation();
+			dialog.dialog("open");
+		});
+		//Only show when drawing happens
+		$("#cancel").hide();
+		$("#save").hide();
+
 		/*End #left-bar buttons*/
         
 		//Dialog of global user variables
@@ -316,12 +315,10 @@
                     refreshLayer();
                     markerDrawer.enable();
                 }
-                /* Do nothing if drawing a route */
                 dialog.dialog("close");
             }
           },
           close: function() {
-//            form[ 0 ].reset();
             if(markerDraw){
                     refreshLayer();
                     markerDrawer.enable();
@@ -340,12 +337,6 @@
               
           }
     });
-    
-        
-//    form = dialog.find( "form" ).on( "submit", function( event ) {
-//      event.preventDefault();
-//      setData();
-//    });
         
 	function dialogGlobalChecker(name, zip) {
             var error = [];
@@ -370,6 +361,7 @@
 	function drawingRoute(){
 		$("#add-route").addClass('icon-click');
 		$("#add-point").removeClass('icon-click');
+		$("#cancel").show();
 		markerDrawer.disable();
 		refreshLayer();
 		routeDraw = true;
@@ -377,17 +369,17 @@
 		currentLine = startNewLine(routeNum);
 		map.addLayer(drawnRoute);
 		drawnRoute.addLayer(currentLine.polyline);
-		map.on('click', addMarker);
 	}
 	function drawingPoints(){
 		if(routeDraw){
-			endLine(currentLine,true);
+			cancelLine();
 			refreshLayer();
 			routeDraw = false;
 			$("#add-route").removeClass('icon-click');
+			$("#save").hide();
 		};
 		$("#add-point").addClass('icon-click');
-	
+		$("#cancel").show();
 		markerDrawer.enable();
 		markerDraw = true;
 	}	
@@ -415,6 +407,8 @@
             
             routeNum ++;
 			stopRouteDraw();
+			$("#cancel").hide();
+			$("#save").hide();
 		};
         if(markerDraw){
             drawnMarkers.eachLayer(function (layer) {
@@ -547,12 +541,7 @@
         }else if(routeDraw){
             map.removeLayer(drawnRoute);
             drawnRoute = new L.FeatureGroup();
-            $( "#map").tooltip( "close" );
         }
-//      if (map.hasLayer(cartoDBData)) {
-//        map.removeLayer(cartoDBData);
-//      };
-//      getGeoJSON();
     };
         
         
