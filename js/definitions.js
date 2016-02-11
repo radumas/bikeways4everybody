@@ -10,7 +10,7 @@ var routeDraw = false,  markerDraw = false, validInput = false;
 var routeDrawTooltip = null;
 
 
-var zip= 0, enteredUsername ="";
+var zip= 0, enteredUsername ="", enteredEmail = "";
 
 
 /* constructor for a new line object 

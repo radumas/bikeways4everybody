@@ -42,6 +42,8 @@
             <li><input type="text" name="username" id="username" placeholder="Enter your name" pattern="[A-Za-z]{3,}" title="Your first name must be at least 3 letters" class="text ui-widget-content ui-corner-all" required></li>
             <li><label for="zipcode">Please Enter Your Zipcode</label></li>
             <li><input type="text" name="zipcode" maxlength="5" pattern="[0-9]{5}" id="zipcode" title="Please enter a 5 digit zip-code" placeholder="02134" class="text ui-widget-content ui-corner-all" required></li>
+			<li><label for="email">Please Enter Your Email (optional)</label></li>
+            <li><input type="email" name="email" id="email" title="Please enter a valid email so we can get in touch with you (optional)" placeholder="yourname@example.com" class="text ui-widget-content ui-corner-all"></li>
           </ul>
           <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
         </fieldset>
@@ -243,10 +245,11 @@
 		  buttons: [{
 			text: "Submit",
 			  click: function() {
-				var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
+				var checkedValues = dialogGlobalChecker(username.value, zipcode.value, email.value);
 				if (checkedValues.valid){
 					zip = "'"+zipcode.value+"'";
 					enteredUsername = "'"+username.value+"'";
+					enteredEmail = "'"+email.value+"'";
 
 					dialogGlobal.dialog("close");
 					validInput = true;
@@ -268,7 +271,7 @@
 			id: "globalAccept"
 		  }],
 		  close: function() {
-				var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
+				var checkedValues = dialogGlobalChecker(username.value, zipcode.value, email.value);
 				if (checkedValues.valid){
 					zip = "'"+zipcode.value+"'";
 					enteredUsername = "'"+username.value+"'";
@@ -344,7 +347,7 @@
           }
     });
         
-	function dialogGlobalChecker(name, zip) {
+	function dialogGlobalChecker(name, zip, email) {
             var error = [];
             var valid = true;
             if(name.length < 3) {
@@ -358,6 +361,14 @@
                 error.push("Your zipcode is invalid.");
                 valid = false;
             }
+			if(email.length > 0){
+//				source: http://stackoverflow.com/a/7791100/4047679
+				var re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+				if(!re.test(email)){
+					error.push("Your email appears to be invalid.");
+					valid = false;
+				}
+			}
             return {valid: valid, error: error};        
     }
         
@@ -437,9 +448,9 @@
       sql += drawing;
       sql += ","+enteredDescription;
       sql += ","+enteredUsername;
-      sql += ","+zip+");";
+      sql += ","+zip;
+		sql += ","+enteredEmail+");";
 
-//        console.log(sql); //For testing
             
     //Sending the data
       $.ajax({
@@ -449,12 +460,8 @@
         data: {"q":sql},
         dataType: 'json',
         success: function(responseData, textStatus, jqXHR) {
-          console.log("Data saved");
-
         },
         error: function (responseData, textStatus, errorThrown) {
-
-            console.log("Problem saving the data");
         }
       });
         
