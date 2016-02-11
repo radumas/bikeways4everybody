@@ -39,7 +39,7 @@
         <fieldset style="border: none;">
           <ul style="list-style-type: none; padding-left: 0px">
             <li><label for="username">Please Enter Your First Name</label></li>
-            <li><input type="text" name="username" id="username" placeholder="Enter your name" pattern="[A-Za-z]{4,}" title="Your first name must be at least 4 letters" class="text ui-widget-content ui-corner-all" required></li>
+            <li><input type="text" name="username" id="username" placeholder="Enter your name" pattern="[A-Za-z]{3,}" title="Your first name must be at least 3 letters" class="text ui-widget-content ui-corner-all" required></li>
             <li><label for="zipcode">Please Enter Your Zipcode</label></li>
             <li><input type="text" name="zipcode" maxlength="5" pattern="[0-9]{5}" id="zipcode" title="Please enter a 5 digit zip-code" placeholder="02134" class="text ui-widget-content ui-corner-all" required></li>
           </ul>
@@ -259,7 +259,10 @@
 				}
 				else{
 					validInput = false;
-					//TODO Print checkedValues.error
+					var index;
+					for(index = 0; index < checkedValues.error.length; ++index){
+						alert(checkedValues.error[index]);
+					}
 				}
 			},
 			id: "globalAccept"
@@ -281,7 +284,10 @@
 				}
 				else{
 					validInput = false;
-					//TODO Print checkedValues.error
+					var index;
+					for(index = 0; index < checkedValues.error.length; ++index){
+						alert(checkedValues.error[index]);
+					}
 				}
 		  },
 			//Hack to avoid "ENTER" leading to a new page...
@@ -348,8 +354,7 @@
             if(zip.length < 5){
                 error.push("Your zipcode is too short.");
                 valid = false;
-            }
-            if(!/(^\d{5}$)/.test(zip)){
+            }else if(!/(^\d{5}$)/.test(zip)){
                 error.push("Your zipcode is invalid.");
                 valid = false;
             }
