@@ -9,130 +9,78 @@ The data stored in CartoDB comes in the form below. In order to see where the mo
 
 ## Lines
 
-Lines first need to be split where they overlap to then be aggregated into segments that are overlapping.
-
-In short we want to separate each user-drawn line into the following three different types of segments:  
-1. Segments which overlap other lines.
-2. Segments which do not overlap lines on lines which do at some point overlap
-3. Lines that do not overlap other lines.
-
-### 1. Overlapping segments
-
-This query takes the intersection between any line `a` and line `b` which overlap, where `a` & `b` are not the same line. Note that since we care about all submitted content, and not just the shapes, we want the intersection of `a` & `b` *AND* the intersection of `b` & `a`, which is why the `WHERE` clause has the not equals `<>` operator rather than the less than `<`, which would halve the number of comparisons to make. 
+I asked GIS.SE how best to accomplish this and got [this answer](http://gis.stackexchange.com/a/187031/36886). Basically splitting the mass of lines by the end points  of individual lines. The code is as follows:
 
 ```sql
-SELECT a.cartodb_id, ST_INTERSECTION(a.the_geom, b.the_geom) as segment
-from bikeways a
-INNER JOIN bikeways b ON ST_OVERLAPS(a.the_geom,b.the_geom)
-WHERE a.cartodb_id <> b.cartodb_id
-```
-
-A note that `ST_Intersection` produces `MultiLineStrings` (multiple lines) and `GeometryCollections` (a collection of points *and* lines), more on this [later](#Aggregating). 
-
-### 2. Disjointed segments of overlapping lines 
-
-For segments that do not overlap other lines but are parts of lines that **do** overlap, we can use the [`ST_Difference`](http://postgis.net/docs/ST_Difference.html) operation. 
-
-```sql
-SELECT a.cartodb_id, ST_Difference(a.the_geom, b.the_geom) AS segment
-from bikeways a
-INNER JOIN bikeways b ON ST_OVERLAPS(a.the_geom,b.the_geom)
-WHERE a.cartodb_id <> b.cartodb_id
-```
-
-### 3. Fully disjointed lines
-
-From [this answer](http://gis.stackexchange.com/a/49849/36886), we can use a `LEFT OUTER JOIN` to see which lines do not overlap with any other.
-
-```sql
-SELECT a.cartodb_id, a.the_geom AS segment
-FROM bikeways a
-LEFT OUTER JOIN bikeways b ON ST_OVERLAPS(a.the_geom,b.the_geom)
-WHERE b.cartodb_id IS NULL
-```
-
-### Aggregating
-
-Following these three separate operations, we have three different types of geometries:
-
- - `GeometryCollections`: a collection of points *and* lines
- - `MultiLineStrings`: multiple lines
- - `LineStrings`: single, contiguous lines
-
-Given that the input are lines, we are not interested in intersection points between them. Further, most GIS software has some difficulty in displaying *mixed geometries*. We can select only `LineString`s from the `GeometryCollection` with [`ST_CollectionExtract(geom, 2) `](http://postgis.net/docs/ST_CollectionExtract.html).
-
-Next we disaggregate the `MultiLineStrings` in order to group together *identical segments* using [`ST_Dump`](http://postgis.net/docs/ST_Dump.html) before aggregating twice:
-1. By identical segments, using `GROUP BY geom` while aggregating the drawn segment `id`s with `array_agg(id ORDER BY id)`
-2. By merging together lines which share the same `id[]` array.
-
-Putting it all together in the command below. You can run this in the `sql` window in CartoDB and then click on the `Create dataset from query` button. 
-
-```sql
-WITH segments as(
-	SELECT cartodb_id
-	,CASE 	WHEN geometrytype(segment) = 'GEOMETRYCOLLECTION' THEN ST_CollectionExtract(segment, 2)
-		else segment
-	END AS segment
-	FROM(
-	SELECT a.cartodb_id, ST_INTERSECTION(a.the_geom, b.the_geom) as segment
-	from bikeways a
-	INNER JOIN bikeways b ON ST_OVERLAPS(a.the_geom,b.the_geom)
-	WHERE a.cartodb_id <> b.cartodb_id AND geometrytype(a.the_geom) = 'LINESTRING' AND geometrytype(b.the_geom) = 'LINESTRING'
-	) overlapping
-	UNION 
-	SELECT cartodb_id
-	,CASE 	WHEN geometrytype(segment) = 'GEOMETRYCOLLECTION' THEN ST_CollectionExtract(segment, 2)
-		ELSE segment
-	END AS segment
-	FROM(
-	SELECT a.cartodb_id, ST_Difference(a.the_geom, b.the_geom) AS segment
-	from bikeways a
-	INNER JOIN bikeways b ON ST_OVERLAPS(a.the_geom,b.the_geom)
-	WHERE a.cartodb_id <> b.cartodb_id
-	) disjointed
-	UNION 
-	SELECT a.cartodb_id, a.the_geom AS segment
-	FROM bikeways a
-	LEFT OUTER JOIN bikeways b ON ST_OVERLAPS(a.the_geom,b.the_geom)
-	WHERE b.cartodb_id IS NULL
+WITH smallest_segments AS (
+  SELECT (ST_Dump(ST_Split(ST_Union(geom), ST_Union(ST_Boundary(the_geom))))).*
+  FROM bikeways
 )
-, dump AS(
-	SELECT cartodb_id
-	,(ST_DUMP(segment)).geom AS segment
-	FROM segments 	
-)
-, agg1 AS(
-	SELECT array_agg(DISTINCT cartodb_id ORDER BY cartodb_id) as ids, segment
-	FROM dump
-	GROUP BY segment
+SELECT row_number() over() AS rn, ids, s.geom AS segment
+FROM smallest_segments s, LATERAL (
+  SELECT ARRAY_AGG(id) AS ids
+  FROM stackex a
+  WHERE ST_Contains(a.the_geom, s.geom)
+) l;
+```
+
+Unfortunately whatever version of `PostGIS` CartoDB is using hasn't been updated to where `ST_Split` can split a line [by multiple points](http://postgis.net/docs/ST_Split.html). So create the [`split_line_multipoint`](/data-analysis/split_line_multipoint.sql) function in CartoDB, and replace `ST_Split` with it. Also unfortunate was that I asked the question for a simple set of lines. And the actual routes drawn are rather messy (they self-intersect, they have mysterious ends). So for the segments that cannot be joined to their parent line with `ST_contains`, for now, I've added successive join functions, first `ST_Overlaps`, then `ST_intersects` while waiting for [an answer](https://gis.stackexchange.com/questions/187503/how-can-i-use-st-contains-st-overlaps-with-non-simple-lines?lq=1). The full query is in [this file](/data-analysis/bikeways_route_agg.sql). Run the query and then `Create a new dataset` from it. Next turn that dataset into a map. Make the lines a chloropleth based on `num_submissions` and edit the info_window html to be something like:
+
+```html
+<div class="cartodb-popup v2">
+  <a href="#close" class="cartodb-popup-close-button close">x</a>
+  <div class="cartodb-popup-content-wrapper">
+    <div class="cartodb-popup-content">
+      <p><h3>{{num_submissions}} Submissions</h3></p>
+      <p>{{{all_comments}}}</p>
+    </div>
+  </div>
+  <div class="cartodb-popup-tip-container"></div>
+</div>
+```
+
+Notice the triple mustache around `{{{all_comments}}}`, this is because in the line aggregation the function separates individual comments with an html `<br>` linebreak tag. The triple mustache tells mustache.js not to [escape the html code inside](http://gis.stackexchange.com/a/187171/36886).
+
+I have plans to turn the route aggregation into a function that gets called nightly to truncate and renew a `routes_aggregated` table. This can apparently be done using bash (maybe) and a free heroku account (definitely).
+
+## Points
+
+I wanted to cluster points that are close together in order to highlight locations where more comments have been submitted while still allowing someone to read the submitted comments. Since the points aren't being snapped to existing geometries like the streets above, they don't necessarily overlap, so the aggregation technique used above won't work.
+
+Fortunately [I previously wrote](http://gis.stackexchange.com/a/144230/36886) a clustering algorithm to group together points within a specified radius. I've added a [version](point_cluster.sql) to run on CartoDB (just run that script) that has all comments removed so it will [play well with CartoDB](http://gis.stackexchange.com/a/187150/36886).
+
+After some examination of existing clusters of points in QGIS, I settled on a 40 m radius as a good tradeoff between grouping together close points while maintaining the granularity of the user submitted points. You may find a different cluster size is appropriate. The full query to plug in to CartoDB is below. 
+
+```sql
+WITH points AS(
+ SELECT cartodb_id, the_geom as geom, notes, insert_time
+  FROM bikeways
+  WHERE geometrytype(the_geom) = 'POINT'
+ ) 
+,clustered AS(
+SELECT (clusters).cluster_id, (clusters).stop_id::int AS cartodb_id FROM (
+
+    SELECT bottomup_cluster_index(array_agg((cartodb_id,geom)::pt), 40) as clusters 
+    FROM  points
+)a
 )
 
-SELECT ids, ST_LineMerge(ST_Multi(ST_Collect(segment))) as line, array_length(ids, 1) as cnt
-FROM agg1
-GROUP BY ids
+SELECT cluster_id, ST_CEntroid(ST_Collect(geom)) as the_geom, COUNT(DISTINCT cartodb_id) AS num_submissions
+  ,STRING_AGG(notes, '<br>' ORDER BY insert_time) as all_comments
+from points
+INNER JOIN clustered USING (cartodb_id)
+GROUP BY cluster_id;
 ```
-
-To aggregate notes together by joining 
-
+After renaming the output table to `bikeways_point_clusters`, you can add the following to the start of the query above to  update that table with new data.
 ```sql
-SELECT a.cartodb_id, STRING_AGG(notes, ',<br>' ORDER BY insert_time), a.the_geom_webmercator, cnt
-FROM bikeways_crossover c
-INNER JOIN bikeways b ON input_id = b.cartodb_id
-INNER JOIN bikeways_aggregated a ON agg_id = a.cartodb_id
-GROUP BY a.cartodb_id, agg_id, a.the_geom_webmercator, a.cnt
+TRUNCATE bikeways_point_clusters;
+INSERT INTO bikeways_point_clusters(cluster_id, the_geom, num_submissions, all_comments)
 ```
 
-Should investigate buffering Mass Ave. 
+### Mapping
 
-agg_id 283 & 172 overlap and share (some) segments somehow on mass ave above newbury st. The two segments intersect but do not overlap and are not identical, 
+I mapped the points as Bubbles using the wizard, so the size of the cluster increases with the number of submissions. You can use the same custom `html` as with the routes for the infowindow.
 
-Problem seems more widespread:
-```sql
-SELECT a.cartodb_id, b.cartodb_id as overlap, a.ids, b.ids as overlapping_ids, a.the_geom_webmercator FROM bikeways_aggregated a
-INNER JOIN bikeways_aggregated b ON a.cartodb_id < b.cartodb_id
-AND ST_Overlaps(a.the_geom, b.the_geom) AND a.ids && b.ids
-```
+## Mapping Routes and Points
 
-
-
-
+You can combine the two layers in a map. I put the points on top.
