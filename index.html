@@ -395,7 +395,14 @@
 		$("#cancel").show();
 		markerDrawer.enable();
 		markerDraw = true;
-	}	
+	}
+		
+	function stopDrawingPoints(){
+		$("#add-point").removeClass('icon-click');
+		$("#cancel").hide();
+		markerDrawer.disable();
+		markerDraw = false;
+	}
 	
     function setData() {
       var enteredDescription = "'"+description.value+"'";
@@ -435,6 +442,8 @@
                   newData.properties.zipcode = zip;
                 submittedData.addData(newData);
             });
+			stopDrawingPoints();
+			
         };
 
         refreshLayer();
