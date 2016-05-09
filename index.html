@@ -311,19 +311,22 @@
             at: "center center",
             of: "#map"
         },
-          buttons: {
-            "Save Input": function(){
+          buttons: [{
+			  text: "Save Input",
+			  click : function(){
 				setData();
-			
-			},
-            Cancel: function() {
+			  },
+			  id: "dialogSaveInput"
+		  },
+			  {text: "Cancel",
+			  click: function() {
                 if(markerDraw){
                     refreshLayer();
                     markerDrawer.enable();
                 }
                 dialog.dialog("close");
             }
-          },
+          }],
           close: function() {
             if(markerDraw){
                     refreshLayer();
@@ -340,7 +343,12 @@
                   _title += " route";
               }
               $( "#dialog" ).dialog( "option", "title",_title);
-              
+			  $( "#dialog" ).keydown(function(e) {
+					  if (e.keyCode == $.ui.keyCode.ENTER) {
+						$("#dialogSaveInput").trigger("click");
+					  }    
+					});
+			  
           }
     });
         
