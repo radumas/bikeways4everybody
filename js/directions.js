@@ -1,3 +1,5 @@
+var lastClick = 0;
+
 function startNewLine(rNum) {
 	$("#map").addClass("pointing");
     var polyline = new line(rNum);
@@ -34,6 +36,12 @@ function stopRouteDraw(){
  */
 function addMarker(evt) {
 
+	//From http://stackoverflow.com/a/28610565/4047679
+	if (lastClick >= (Date.now() - 20))
+    	return;
+	
+	lastClick = Date.now();
+	
 	
     if (currentLine === null) {
 	}
