@@ -73,7 +73,7 @@
 		var bounds = L.latLngBounds(L.latLng(config.south,config.west), L.latLng(config.north,config.east));
         var map = L.mapbox.map('map', config.baseMap,{ 
             center: config.mapFocus,
-            zoom: 13, minZoom : 13, maxBounds : bounds, zoomControl :false });
+            zoom: 13, minZoom : 13, maxzoom: 17, maxBounds : bounds, zoomControl :false });
         
         L.control.zoom({position : 'bottomleft'}).addTo(map);
 		    
