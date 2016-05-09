@@ -1,4 +1,6 @@
-WITH line AS(
+Truncate bikeways_routes_agged;
+INSERT INTO bikeways_routes_agged (ids, num_submissions, all_comments, the_geom)
+(WITH line AS(
 SELECT cartodb_id, notes, the_geom, insert_time
 FROM bikeways
 WHERE geometrytype(the_geom) LIKE 'LINESTRING'
@@ -47,3 +49,4 @@ UNION ALL
 SELECT ids, num_submissions, all_comments, segment
 FROM contains
 WHERE ids IS NOT NULL
+)
