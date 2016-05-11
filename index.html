@@ -19,6 +19,11 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
+<!--      Geolocate Button-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/leaflet.locatecontrol/0.52.0/L.Control.Locate.mapbox.min.css">
+    <script src="https://cdn.jsdelivr.net/leaflet.locatecontrol/0.52.0/L.Control.Locate.min.js"></script>
+<!--      /Geolocate Button-->
+	  
 <!--      QGIS Webmap-->
         <link rel="stylesheet" href="css/label.css" />
         <script src="js/label.js"></script>
@@ -132,7 +137,13 @@
 		//See for explanation of zindex level http://stackoverflow.com/q/35092858/4047679 
 		labelLayer.setZIndex(5);
 		
-		
+		/*Geolocator, activate only on mobile*/
+		if (matchMedia('handheld').matches) {
+			L.control.locate({
+				position: 'topright',
+				icon: 'fa fa-crosshairs'
+			}).addTo(map);
+		}
 		
             //Empty to store drawn routes after they are submitted
         var submittedRoutes = new L.geoJson(false, {
@@ -197,6 +208,8 @@
         });
 
 
+		
+		
 		/*Button that triggers the initial walkthrough again*/
 		$("#about").on("click", function(event){
 			event.stopPropagation();
@@ -370,8 +383,7 @@
     }
      
 		
-	$("#dialog").css('z-index','1005');
-	$("#dialogGlobal").css('z-index','1005');
+	$(".ui-front").css('z-index','1005');
 		
 	//Functions to initiate drawing
 	function drawingRoute(){
