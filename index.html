@@ -127,7 +127,7 @@
 			"tilejson": "2.0.1",
 			"tiles":['http://c.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png'], 
             "attribution": '&copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-            "maxzoom": 19,
+            "maxzoom": 17,
         	"minzoom": 13       
         };
         
@@ -207,7 +207,7 @@
 		/*Button that triggers the initial walkthrough again*/
 		$("#about").on("click", function(event){
 			event.stopPropagation();
-		     $.prompt(tourStates);
+		     $.prompt(tourStates,{zIndex: 1200});
 		});
 		
 		$("#cancel").on("click", function(event){
@@ -545,12 +545,13 @@
 
 		/*Geolocator, activate only on mobile
 		http://stackoverflow.com/a/26577897/4047679*/
-		if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+//		if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
 			L.control.locate({
 				position: 'topright',
-				icon: 'fa fa-crosshairs'
+				icon: 'fa fa-crosshairs',
+				locateOptions: {maxZoom: 17}
 			}).addTo(map);
-		}
+//		}
         
     function refreshLayer() {
              
