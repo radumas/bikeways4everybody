@@ -74,7 +74,7 @@
         var map = L.mapbox.map('map', config.baseMap,{ 
             center: config.mapFocus,
             zoom: 13, minZoom : 13, maxzoom: 17, maxBounds : bounds, zoomControl :false });
-        
+        map.touchZoom.enable();
         L.control.zoom({position : 'bottomleft'}).addTo(map);
 		    
             //Empty to store markers after they are submitted
