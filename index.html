@@ -137,13 +137,7 @@
 		//See for explanation of zindex level http://stackoverflow.com/q/35092858/4047679 
 		labelLayer.setZIndex(5);
 		
-		/*Geolocator, activate only on mobile*/
-		if (matchMedia('handheld').matches) {
-			L.control.locate({
-				position: 'topright',
-				icon: 'fa fa-crosshairs'
-			}).addTo(map);
-		}
+
 		
             //Empty to store drawn routes after they are submitted
         var submittedRoutes = new L.geoJson(false, {
@@ -569,6 +563,13 @@
         
         stackLayers();
 
+		/*Geolocator, activate only on mobile*/
+		if (window.matchMedia('handheld').matches) {
+			L.control.locate({
+				position: 'topright',
+				icon: 'fa fa-crosshairs'
+			}).addTo(map);
+		}
         
     function refreshLayer() {
              
