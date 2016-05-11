@@ -96,16 +96,16 @@
 		leftBar.onAdd = function(map){
 			var div =L.DomUtil.create('div', '');
 			div.id = 'leftBar';
-			div.innerHTML = '<div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you want improved infrastructure">'
+			div.innerHTML = '<span style="font-size:x-large"><div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you want improved infrastructure">'
 				+'<i class="fa fa-pencil fa-3x fa-inverse"></i>'
-				+'</div>'
+				+'</div></span>'
 				+'  <div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map where you want improved infrastructure">'
 				+'<i class="fa fa-map-marker fa-inverse fa-3x"></i>'
 				+'</div><br>'
-				+'<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">'
+				+'&emsp;<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">'
 				+'<i class="fa fa-info fa-3x fa-inverse"></i>'
 				+'</div>	<br>'
-				+'<div id="cancel" class="circle type1 icon-hover tooltip" title="Cancel drawing" style="inline-block">'
+				+'&emsp;<div id="cancel" class="circle type1 icon-hover tooltip" title="Cancel drawing" style="inline-block">'
 				+'<i class="fa fa-times fa-3x fa-inverse"></i>'
 				+'</div>'
 				+' <div id="save" class="circle type1 icon-hover tooltip" title="Save Route" style="inline-block">'
@@ -368,7 +368,10 @@
             }
             return {valid: valid, error: error};        
     }
-        
+     
+		
+	$("#dialog").css('z-index','1005');
+	$("#dialogGlobal").css('z-index','1005');
 		
 	//Functions to initiate drawing
 	function drawingRoute(){
