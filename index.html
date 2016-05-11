@@ -275,27 +275,7 @@
 			id: "globalAccept"
 		  }],
 		  close: function() {
-				var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
-				if (checkedValues.valid){
-					zip = "'"+zipcode.value+"'";
-					enteredUsername = "'"+username.value+"'";
 
-					dialogGlobal.dialog("close");
-					validInput = true;
-					if($(this).data('clicked')=='add-route'){
-						drawingRoute();
-					}
-					else if($(this).data('clicked')=='add-point'){
-						drawingPoints();
-					}
-				}
-				else{
-					validInput = false;
-					var index;
-					for(index = 0; index < checkedValues.error.length; ++index){
-						alert(checkedValues.error[index]);
-					}
-				}
 		  },
 			//Hack to avoid "ENTER" leading to a new page...
 			open: function(){
