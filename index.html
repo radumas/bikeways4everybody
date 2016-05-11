@@ -563,8 +563,9 @@
         
         stackLayers();
 
-		/*Geolocator, activate only on mobile*/
-		if (window.matchMedia('handheld').matches) {
+		/*Geolocator, activate only on mobile
+		http://stackoverflow.com/a/26577897/4047679*/
+		if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
 			L.control.locate({
 				position: 'topright',
 				icon: 'fa fa-crosshairs'
