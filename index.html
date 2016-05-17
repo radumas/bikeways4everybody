@@ -283,7 +283,11 @@
 					$("#globalAccept").trigger("click");
 				  }    
 				});
-				$("#globalAccept").on("click", function() {
+				
+			}
+		});
+		
+		$("#globalAccept").on("click", function() {
 				var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
 				if (checkedValues.valid){
 					zip = "'"+zipcode.value+"'";
@@ -306,8 +310,6 @@
 					}
 				}
 			});
-			}
-		});
 		
         /* dialog that appears after finishing a drawing */
       dialog = $( "#dialog" ).dialog({
