@@ -288,6 +288,7 @@
 		});
 		
 		$("#globalAccept").on("click", function() {
+			alert("You clicked the Submit button!");
 				var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
 				if (checkedValues.valid){
 					zip = "'"+zipcode.value+"'";
