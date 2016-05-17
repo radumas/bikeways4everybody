@@ -48,7 +48,7 @@
             <li><label for="zipcode">Please Enter Your Zipcode</label></li>
             <li><input type="text" name="zipcode" maxlength="5" pattern="[0-9]{5}" id="zipcode" title="Please enter a 5 digit zip-code" placeholder="02134" class="text ui-widget-content ui-corner-all" required></li>
           </ul>
-          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+			<button type="button" tabindex="-1" style="position:absolute; top:-1000px"></button>
         </fieldset>
       </form>
     </div>
@@ -335,7 +335,29 @@
 						$("#dialogSaveInput").trigger("click");
 					  }    
 					});
-			  
+			$("#globalAccept").on("click", function() {
+				var checkedValues = dialogGlobalChecker(username.value, zipcode.value);
+				if (checkedValues.valid){
+					zip = "'"+zipcode.value+"'";
+					enteredUsername = "'"+username.value+"'";
+
+					dialogGlobal.dialog("close");
+					validInput = true;
+					if($(this).data('clicked')=='add-route'){
+						drawingRoute();
+					}
+					else if($(this).data('clicked')=='add-point'){
+						drawingPoints();
+					} 
+				}
+				else{
+					validInput = false;
+					var index;
+					for(index = 0; index < checkedValues.error.length; ++index){
+						alert(checkedValues.error[index]);
+					}
+				}
+			});
           }
     });
         
