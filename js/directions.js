@@ -7,7 +7,7 @@ function startNewLine(rNum) {
     routeDrawTooltip = new L.Tooltip(map);
     map.on('mousemove', _onMouseMove);
 	map.on('click', addMarker);
-    routeDrawTooltip.updateContent({text:"Click to add a waypoint to your route"});
+    routeDrawTooltip.updateContent({text:"Click to add a start point to your route"});
     return polyline;
 }
 
@@ -42,7 +42,6 @@ function addMarker(evt) {
 	
 	lastClick = Date.now();
 	
-	
     if (currentLine === null) {
 	}
 	else if (currentLine !== null) {
@@ -55,6 +54,11 @@ function addMarker(evt) {
 		drawnRoute.addLayer(marker);
 		currentLine.waypoints.push(marker);
 		drawRoute(currentLine);
+        
+        if(currentLine.waypoints.length >= 1){
+            routeDrawTooltip.updateContent({text:"Click to add a another point to your route"});
+        }
+
         //Change message of the tooltip, and enable finishing route
         if(currentLine.waypoints.length >= 2){
 			routeDrawTooltip.updateContent({text: 'Double-click on a point to finish drawing' });
