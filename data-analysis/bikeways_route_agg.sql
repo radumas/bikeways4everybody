@@ -31,7 +31,7 @@ WHERE path IN (SELECT path FROM contains WHERE ids IS NULL)
 
 
 -- ORDER BY join_id-- 
-SELECT array_agg(cartodb_id) AS ids, COUNT(cartodb_id ) AS num_submissions, STRING_AGG(notes, '<br>' ORDER BY insert_time) as all_comments
+SELECT array_agg(cartodb_id ORDER BY insert_time) AS ids, COUNT(cartodb_id ) AS num_submissions, STRING_AGG(notes, '<br>' ORDER BY insert_time) as all_comments
 	, s.geom AS segment
 FROM smallest_segements s, LATERAL (
   SELECT DISTINCT ON (cartodb_id) cartodb_id, notes, insert_time

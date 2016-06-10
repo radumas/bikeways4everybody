@@ -9,7 +9,7 @@ The data stored in CartoDB comes in the form below. In order to see where the mo
 
 ## Lines
 
-I asked GIS.SE how best to accomplish this and got [this answer](http://gis.stackexchange.com/a/187031/36886). Basically splitting the mass of lines by the end points  of individual lines. The code is as follows:
+I asked GIS.SE how best to accomplish this and got [this answer](http://gis.stackexchange.com/a/187031/36886). Basically splitting the mass of lines by the end points of individual lines. The code something along the lines of the following, full code linked in the following paragraph:
 
 ```sql
 WITH smallest_segments AS (
@@ -24,7 +24,11 @@ FROM smallest_segments s, LATERAL (
 ) l;
 ```
 
-Unfortunately whatever version of `PostGIS` CartoDB is using hasn't been updated to where `ST_Split` can split a line [by multiple points](http://postgis.net/docs/ST_Split.html). So create the [`split_line_multipoint`](/data-analysis/split_line_multipoint.sql) function in CartoDB, and replace `ST_Split` with it. Also unfortunate was that I asked the question for a simple set of lines. And the actual routes drawn are rather messy (they self-intersect, they have mysterious ends). So for the segments that cannot be joined to their parent line with `ST_contains`, for now, I've added successive join functions, first `ST_Overlaps`, then `ST_intersects` while waiting for [an answer](https://gis.stackexchange.com/questions/187503/how-can-i-use-st-contains-st-overlaps-with-non-simple-lines?lq=1). The full query is in [this file](/data-analysis/bikeways_route_agg.sql). Run the query and then `Create a new dataset` from it. Next turn that dataset into a map. Make the lines a chloropleth based on `num_submissions` and edit the info_window html to be something like:
+Unfortunately whatever version of `PostGIS` CartoDB is using hasn't been updated to where `ST_Split` can split a line [by multiple points](http://postgis.net/docs/ST_Split.html). So create the [`split_line_multipoint`](/data-analysis/split_line_multipoint.sql) function in CartoDB, and replace `ST_Split` with it. Also unfortunate was that I asked the question for a simple set of lines. And the actual routes drawn are rather messy (they self-intersect, they have mysterious ends). So for the segments that cannot be joined to their parent line with `ST_contains`, for now, I've added successive join functions, first `ST_Overlaps`, then `ST_intersects` while waiting for [an answer](https://gis.stackexchange.com/questions/187503/how-can-i-use-st-contains-st-overlaps-with-non-simple-lines?lq=1). The full query is in [this file](/data-analysis/bikeways_route_agg.sql). Run the query and then `Create a new dataset` from it. 
+
+### Mapping Routes
+
+Turn that dataset into a map. Make the lines a chloropleth based on `num_submissions` and edit the info_window html to be something like:
 
 ```html
 <div class="cartodb-popup v2">
@@ -77,10 +81,37 @@ TRUNCATE bikeways_point_clusters;
 INSERT INTO bikeways_point_clusters(cluster_id, the_geom, num_submissions, all_comments)
 ```
 
-### Mapping
+### Mapping Points
 
-I mapped the points as Bubbles using the wizard, so the size of the cluster increases with the number of submissions. You can use the same custom `html` as with the routes for the infowindow.
+I mapped the points as Bubbles using the wizard, so the size of the cluster increases with the number of submissions. You can use the same custom `html` as with the [routes](#mapping-routes) for the infowindow.
 
 ## Mapping Routes and Points
 
 You can combine the two layers in a map. I put the points on top.
+
+## Automating Processing 
+
+Right now the processing must be run manually by copy-pasting the functions above into CartoDB's sql pane. Wouldn't it be nicer if it just... happened? This section will explain how to combine all the aggregation functions into one function which can, like the insert function, be pinged remotely using the CartoDB API. You might need to familiarize yourself with your operating system's command line for this section. 
+
+[`data-analysis/process-data.sql`](process-data.sql) contains all of the aggregation functions combined into one function, and it's been made publicly available, so an external computer can periodically ping the following URL to tell CartoDB to do all that data-processing. `https://YOURUSERNAME.cartodb.com/api/v2/sql?q=select%20process_data%28%29`
+
+[`data-analysis/process-data-call.py`](process-data-call.py) contains a very short Python script that calls the above URL. This could be run on a server with a cron job or set up as a scheduled task in Heroku. Don't forget to change the username variable to your own username. 
+
+### Heroku set up
+1. Get a Heroku account and provide your credit card details (don't worry, this should all be free).
+
+2. Install the [Heroku Toolbelt](https://toolbelt.heroku.com/)
+
+3. Copy [`data-analysis/process-data-call.py`](process-data-call.py) to a new folder
+
+4. Create a Heroku app in that folder with the command `heroku create --buildpack heroku/python`
+
+5. Add a `requirements.txt` file to the folder with the contents `requests==2.9.1`. This tells the Python package manager to include the `requests` library, which handles the HTTP requests
+
+6. Add the file `Procfile` to the folder with the contents `web: python process-data-call.py`. [This tells Heroku](https://devcenter.heroku.com/articles/getting-started-with-python#define-a-procfile) what command to run at the root folder of your "application" when it runs it. 
+
+7. Add all the files in your folder with `git add .` and then push them to heroku with `git push heroku master`
+
+8. On the dashboard for your app, add the `Heroku scheduler` app and then create a new task with task `python process-data-call.py`. I set the schedule to be every day.
+
+9. Monitor progress with [`heroku logs --tail`](https://devcenter.heroku.com/articles/getting-started-with-python#view-logs)
