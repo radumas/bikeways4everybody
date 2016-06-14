@@ -3,7 +3,7 @@
 The data stored in CartoDB comes in the form below. In order to see where the most people have submitted input, it will be necessary to split lines where they overlap with each other to aggregate the overlapping segments. Points will need to be clustered into nearby clusters.
 
 | cartodb_id | notes | name | insert_time |  zipcode | the_geom |
-|----------------------------------------------------------------------|
+|------------|-------|------|-------------|----------|-----------------|
 |1|This is terrifying| Raphael | 2016-02-25 16:43:45 | 02139 | LINE|
 |2| Aweful intersection| Raphael | 2016-02-25 16:46:32 | 02139 | POINT|
 
