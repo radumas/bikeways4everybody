@@ -66,10 +66,31 @@
       </form>
     </div>
 
+    <!-- Interaction buttons template (top left) -->
+    <script id="hidden-interaction-buttons-template" type="text/x-custom-template">
+
+    	<span style="font-size:x-large"><div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you want improved infrastructure">
+    		<i class="fa fa-pencil fa-3x fa-inverse"></i>
+    	</div></span>
+    	<div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map where you want improved infrastructure">
+    		<i class="fa fa-map-marker fa-inverse fa-3x"></i>
+    	</div><br>
+    	&emsp;<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">
+    		<i class="fa fa-info fa-3x fa-inverse"></i>
+    	</div>	<br>
+    	&emsp;<div id="cancel" class="circle type1 icon-hover tooltip" title="Cancel drawing" style="inline-block">
+    		<i class="fa fa-times fa-3x fa-inverse"></i>
+    	</div>
+    	<div id="save" class="circle type1 icon-hover tooltip" title="Save Route" style="inline-block">
+    	<i class="fa fa-floppy-o fa-3x fa-inverse"></i></div>
+
+    </script>
+
     <script src="js/definitions.js"></script>
     <script src="js/directions.js"></script>
     <script src="data/json_bikefacilitiesexp.js"></script>
 		<script src="js/userconfig.js"></script>
+
     <script>
         
 
@@ -99,23 +120,14 @@
 		var leftBar = L.control({position: 'topleft'});
 	
 		//Inspiration: http://stackoverflow.com/a/25764322/4047679
+		//More insiration: http://stackoverflow.com/questions/18673860/defining-a-html-template-to-append-using-jquery
+		
+		var hiddenInteractionButtonsTemplate = $('#hidden-interaction-buttons-template').html();
+
 		leftBar.onAdd = function(map){
 			var div =L.DomUtil.create('div', '');
 			div.id = 'leftBar';
-			div.innerHTML = '<span style="font-size:x-large"><div id="add-route" class="circle type1 icon-hover tooltip" title="Draw routes on the map where you want improved infrastructure">'
-				+'<i class="fa fa-pencil fa-3x fa-inverse"></i>'
-				+'</div></span>'
-				+'  <div id="add-point" class="circle type1 icon-hover tooltip" title="Add points to the map where you want improved infrastructure">'
-				+'<i class="fa fa-map-marker fa-inverse fa-3x"></i>'
-				+'</div><br>'
-				+'&emsp;<div id="about" class="circle type1 icon-hover tooltip" title="Learn more">'
-				+'<i class="fa fa-info fa-3x fa-inverse"></i>'
-				+'</div>	<br>'
-				+'&emsp;<div id="cancel" class="circle type1 icon-hover tooltip" title="Cancel drawing" style="inline-block">'
-				+'<i class="fa fa-times fa-3x fa-inverse"></i>'
-				+'</div>'
-				+' <div id="save" class="circle type1 icon-hover tooltip" title="Save Route" style="inline-block">'
-				+'<i class="fa fa-floppy-o fa-3x fa-inverse"></i></div>';
+			div.innerHTML = hiddenInteractionButtonsTemplate;
 			return div;
 		};
 
@@ -572,9 +584,11 @@
 		
         stackLayers();
 
+    var deviceIsMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent);
+
 		/*Geolocator, activate only on mobile
 		http://stackoverflow.com/a/26577897/4047679*/
-		if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+		if (deviceIsMobile) {
 			L.control.locate({
 				position: 'topright',
 				icon: 'fa fa-crosshairs',
@@ -651,7 +665,7 @@
             }
          ];
         
-		if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+		if (deviceIsMobile) {
           tourStates = [
               {
                 title:"Click on <span class='fa-stack fa-lg'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-pencil fa-inverse fa-stack-1x'></i></span> to Draw a Route",
