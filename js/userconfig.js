@@ -12,7 +12,6 @@ var config = {
 	//Mapbox access token & key for basemap
 	mapboxAccessToken :              
             'pk.eyJ1IjoicmVtb3RlZ2VudHJpZnkiLCJhIjoiY2lnanJzMjJpMDA1dnYxbHo5MTZtdGZsYSJ9.gLE8d40zmDAtMSSZyd2h1Q',
-	baseMap: 'remotegentrify.ea603042',
     //Change to your username, insert function on cartodb, and cartodb tablename (see also /cartoDB_functions)
 	cartoDBusername : 'raphaeld',
 	cartoDBinsertfunction : 'insert_bikeways_data',

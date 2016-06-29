@@ -7,8 +7,8 @@
 	  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Bikeways for Everybody!</title>
 <!--      Mapbox-->
-    <script src="https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.js"></script>
-    <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.css"  />
+    <script src="js/leaflet.js"></script>
+    <link rel="stylesheet" href="css/leaflet.css"  />
 <!--      /Mapbox-->
 <!--      Leaflet.draw-->
     <link rel="stylesheet" type="text/css" href="css/leaflet.draw.css" />
@@ -94,16 +94,24 @@
     <script>
         
 
-        L.mapbox.accessToken =                         
-            config.mapboxAccessToken;
+        //L.mapbox.accessToken = config.mapboxAccessToken;
 // Create a map in the div #map
 		var bounds = L.latLngBounds(L.latLng(config.south,config.west), L.latLng(config.north,config.east));
-        var map = L.mapbox.map('map', config.baseMap,{ 
+        var map = L.map('map', { 
             center: config.mapFocus,
             zoom: 13, minZoom : 13, maxzoom: 17, maxBounds : bounds, zoomControl :false });
         map.touchZoom.enable();
         L.control.zoom({position : 'bottomleft'}).addTo(map);
 		    
+        //Positron basemap
+        var CartoDB_PositronNoLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+        CartoDB_PositronNoLabels.addTo(map);
+        
+        
             //Empty to store markers after they are submitted
         var submittedData = L.geoJson(false, {
             onEachFeature: function (feature, layer) {
@@ -134,21 +142,15 @@
 		leftBar.addTo(map);
 		
 		
-		//Adding layer of labels
-		//See http://gis.stackexchange.com/a/178633/36886
-		var CartoDB_PositronOnlyLabels = {
-			"tilejson": "2.0.1",
-			"tiles":['http://c.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png'], 
+		//Adding layer of labels	
+		var labelLayer = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
             "attribution": '&copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
             "maxzoom": 17,
-        	"minzoom": 13       
-        };
-        
-		var topPane = map._createPane('leaflet-top-pane', map.getPanes().mapPane);
-		var labelLayer = L.mapbox.tileLayer(CartoDB_PositronOnlyLabels).addTo(map);
-		topPane.appendChild(labelLayer.getContainer());
+        	"minzoom": 13, 
+            "pane":"markerPane"}).addTo(map);
+//		markerPane.appendChild(labelLayer.getContainer());
 		//See for explanation of zindex level http://stackoverflow.com/q/35092858/4047679 
-		labelLayer.setZIndex(5);
+//		labelLayer.setZIndex(5);
 		
 
 		
