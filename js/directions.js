@@ -4,7 +4,7 @@ function startNewLine(rNum) {
 	$("#map").addClass("pointing");
     var polyline = new line(rNum);
     routeDict[polyline.id] = polyline;
-    routeDrawTooltip = new L.Tooltip(map);
+    routeDrawTooltip = new L.Draw.Tooltip(map);
     map.on('mousemove', _onMouseMove);
 	map.on('click', addMarker);
     routeDrawTooltip.updateContent({text:"Click to add a start point to your route"});
