@@ -18,10 +18,8 @@ Crowd-sourcing lines on a map to solicit public input on ideal locations for ful
 3. In the view for the table, click on the "SQL" tab on the write to execute arbitrary SQL.  
 ![Custom SQL tab](https://i.stack.imgur.com/HPEHG.png)
 4. Add an `insert_time` column by inputting the following code in the SQL pane: `ALTER TABLE bikeways ADD COLUMN insert_time timestamp DEFAULT current_timestamp;`
-4. Copy and paste the contents of `insert_function.sql` ([located here](cartoDB_functions/insert_function.sql)) into the sql pane, and then modify the name of the table to be inserted:  
-	```
-	_the_table TEXT := 'bikeways';
-	```  
+4. Copy and paste the contents of `insert_function.sql` ([located here](cartoDB_functions/insert_function.sql)) into the sql pane. Modify the name of the table to be inserted, if needed, and add any extra columns you may have created.
+
 	This function allows you to send data from the map to the Carto using a publicly accessible URL while limiting what functions the public can perform on the data (for example, modifying or deleting existing data). This function takes the drawn shape as a GeoJSON, the description, and the username. It converts the GeoJSON to a PostGIS geometry object and then inserts a new row in the table with the geometry, and the other two user-input values. Since it isn't easy to view saved functions in cartoDB, I recommend saving the function in a text file.  
 	**If you have multiple tables** see below for more information on keeping track of multiple files.
 5. Go to step 2 in [**After Forking this Repository**](#after-forking-this-repository)  
