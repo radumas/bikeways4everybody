@@ -87,5 +87,4 @@ I made sure the bike facility classification column had the **same name** in the
  - add layers list
  - match project CRS
  
-Then I exported it, and copied the exported data `.js` file to the project's `data` folder as well as a number of other `.css` and `.js` files:  
- - 
+Then I exported it, and copied the exported data `.js` file to the project's `data` folder as well as a number of other `.css` and `.js` files
